@@ -3,6 +3,7 @@
 import argparse
 import sys
 
+from font_charset_stats import __version__
 from font_charset_stats.analyzer import analyze
 from font_charset_stats.charsets import ALL_CHARSETS, get_charset, list_charsets
 from font_charset_stats.font_reader import read_font
@@ -38,6 +39,11 @@ def main() -> None:
         help="Show missing codepoints for each charset",
     )
     parser.add_argument(
+        "--exclude-controls",
+        action="store_true",
+        help="Exclude control characters (U+0000-U+001F, U+007F-U+009F) from analysis",
+    )
+    parser.add_argument(
         "--output",
         "-o",
         help="Write output to file instead of stdout",
@@ -50,7 +56,7 @@ def main() -> None:
     parser.add_argument(
         "--version",
         action="version",
-        version="font-charset-stats 0.1.0",
+        version=f"font-charset-stats {__version__}",
     )
 
     args = parser.parse_args()
@@ -81,7 +87,12 @@ def main() -> None:
     else:
         charset_list = [ALL_CHARSETS[n] for n in list_charsets()]
 
-    results = analyze(font_info.codepoints, charset_list, show_missing=args.show_missing)
+    results = analyze(
+        font_info.codepoints,
+        charset_list,
+        show_missing=args.show_missing,
+        exclude_controls=args.exclude_controls,
+    )
 
     output = format_report(font_info, results, fmt=args.format, show_missing=args.show_missing)
 

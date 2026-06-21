@@ -1,3 +1,5 @@
+__version__ = "0.1.0"
+
 from font_charset_stats.analyzer import CoverageResult, analyze
 from font_charset_stats.charsets import ALL_CHARSETS, get_charset, list_charsets
 from font_charset_stats.font_reader import FontInfo, read_font
@@ -9,6 +11,7 @@ def analyze_font(
     charsets: list[str] | None = None,
     fmt: str = "text",
     show_missing: bool = False,
+    exclude_controls: bool = False,
 ) -> str:
     """Convenience function: read font, analyze all/specified charsets, return formatted report."""
     font_info = read_font(font_path)
@@ -18,7 +21,12 @@ def analyze_font(
     else:
         cs_list = [ALL_CHARSETS[n] for n in list_charsets()]
 
-    results = analyze(font_info.codepoints, cs_list, show_missing=show_missing)
+    results = analyze(
+        font_info.codepoints,
+        cs_list,
+        show_missing=show_missing,
+        exclude_controls=exclude_controls,
+    )
     return format_report(font_info, results, fmt=fmt, show_missing=show_missing)
 
 
