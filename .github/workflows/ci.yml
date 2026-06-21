@@ -33,6 +33,9 @@ jobs:
       - name: Pyright
         run: uv run pyright
 
+      - name: Pytest
+        run: uv run pytest -v
+
       - name: Verify imports
         run: |
           uv run python -c "
