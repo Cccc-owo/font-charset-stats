@@ -159,7 +159,7 @@
     <message>
         <location filename="../export_dialog.py" line="89"/>
         <location filename="../export_dialog.py" line="96"/>
-        <location filename="../export_dialog.py" line="105"/>
+        <location filename="../export_dialog.py" line="104"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
@@ -174,7 +174,7 @@
         <translation>没有可导出的数据。</translation>
     </message>
     <message>
-        <location filename="../export_dialog.py" line="105"/>
+        <location filename="../export_dialog.py" line="104"/>
         <source>Report saved to:
 %s</source>
         <translation>报告已保存到：
@@ -187,7 +187,7 @@
 %1</translation>
     </message>
     <message>
-        <location filename="../export_dialog.py" line="109"/>
+        <location filename="../export_dialog.py" line="107"/>
         <source>Export Error</source>
         <translation>导出错误</translation>
     </message>
@@ -233,109 +233,135 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../app.py" line="32"/>
+        <location filename="../app.py" line="33"/>
         <source>Font Charset Stats</source>
         <translation>字体字符集统计</translation>
     </message>
     <message>
-        <location filename="../app.py" line="68"/>
+        <location filename="../app.py" line="69"/>
         <source>&amp;File</source>
         <translation>文件(&amp;F)</translation>
     </message>
     <message>
-        <location filename="../app.py" line="70"/>
+        <location filename="../app.py" line="71"/>
         <source>&amp;Open Font...</source>
         <translation>打开字体(&amp;O)...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="75"/>
+        <location filename="../app.py" line="76"/>
         <source>&amp;Batch Analyze...</source>
         <translation>批量分析(&amp;B)...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="82"/>
+        <location filename="../app.py" line="83"/>
         <source>&amp;Export Report...</source>
         <translation>导出报告(&amp;E)...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="89"/>
+        <location filename="../app.py" line="90"/>
         <source>&amp;Quit</source>
         <translation>退出(&amp;Q)</translation>
     </message>
     <message>
-        <location filename="../app.py" line="94"/>
+        <location filename="../app.py" line="95"/>
         <source>&amp;Language</source>
         <translation>语言(&amp;L)</translation>
     </message>
     <message>
-        <location filename="../app.py" line="102"/>
+        <location filename="../app.py" line="107"/>
         <source>&amp;Help</source>
         <translation>帮助(&amp;H)</translation>
     </message>
     <message>
-        <location filename="../app.py" line="103"/>
+        <location filename="../app.py" line="108"/>
         <source>&amp;About</source>
         <translation>关于(&amp;A)</translation>
     </message>
     <message>
         <location filename="../app.py" line="111"/>
+        <source>&amp;License</source>
+        <translation>许可证(&amp;L)</translation>
+    </message>
+    <message>
+        <location filename="../app.py" line="119"/>
         <source>Open Font</source>
         <translation>打开字体</translation>
     </message>
     <message>
-        <location filename="../app.py" line="115"/>
+        <location filename="../app.py" line="123"/>
         <source>Batch</source>
         <translation>批量</translation>
     </message>
     <message>
-        <location filename="../app.py" line="121"/>
+        <location filename="../app.py" line="129"/>
         <source>Analyze</source>
         <translation>分析</translation>
     </message>
     <message>
-        <location filename="../app.py" line="128"/>
+        <location filename="../app.py" line="136"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../app.py" line="134"/>
+        <location filename="../app.py" line="142"/>
         <source>Show Controls</source>
         <translation>显示控制字符</translation>
     </message>
     <message>
-        <location filename="../app.py" line="161"/>
+        <location filename="../app.py" line="169"/>
         <source>Ready</source>
         <translation>就绪</translation>
     </message>
     <message>
-        <location filename="../app.py" line="173"/>
+        <location filename="../app.py" line="181"/>
         <source>Open Font Files</source>
         <translation>打开字体文件</translation>
     </message>
     <message>
-        <location filename="../app.py" line="175"/>
+        <location filename="../app.py" line="183"/>
         <source>Font Files (*.ttf *.otf *.woff *.woff2);;All Files (*)</source>
         <translation>字体文件 (*.ttf *.otf *.woff *.woff2);;所有文件 (*)</translation>
     </message>
     <message>
-        <location filename="../app.py" line="188"/>
+        <location filename="../app.py" line="196"/>
         <source>Loaded: %s</source>
         <translation>已加载：%s</translation>
     </message>
     <message>
-        <location filename="../app.py" line="195"/>
+        <location filename="../app.py" line="203"/>
         <source>Reloading: %s face %s...</source>
         <translation>重新加载：%s 样式 %s...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="219"/>
+        <location filename="../app.py" line="227"/>
         <source>Loading: %s...</source>
         <translation>加载中：%s...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="257"/>
+        <location filename="../app.py" line="265"/>
         <source>Analyzing... %s/%s</source>
         <translation>分析中... %s/%s</translation>
+    </message>
+    <message>
+        <location filename="../app.py" line="306"/>
+        <source>Analyze font character set coverage against
+Chinese / Japanese / Korean encoding standards.
+
+Copyright (c) 2026 Cccc_
+Licensed under the MIT License.
+
+Powered by fonttools + PySide6</source>
+        <translation>分析字体对中日韩编码标准的字符集覆盖率。
+
+版权所有 (c) 2026 Cccc_
+基于 MIT 许可证授权。
+
+由 fonttools + PySide6 驱动</translation>
+    </message>
+    <message>
+        <location filename="../app.py" line="317"/>
+        <source>MIT License</source>
+        <translation>MIT 许可证</translation>
     </message>
     <message>
         <source>Loaded: %1</source>
@@ -350,22 +376,22 @@
         <translation type="vanished">加载中：%1...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="228"/>
+        <location filename="../app.py" line="236"/>
         <source>No fonts or charsets selected</source>
         <translation>未选择字体或字符集</translation>
     </message>
     <message>
-        <location filename="../app.py" line="234"/>
+        <location filename="../app.py" line="242"/>
         <source>Analyzing...</source>
         <translation>分析中...</translation>
     </message>
     <message>
-        <location filename="../app.py" line="250"/>
+        <location filename="../app.py" line="258"/>
         <source>Analysis complete</source>
         <translation>分析完成</translation>
     </message>
     <message>
-        <location filename="../app.py" line="254"/>
+        <location filename="../app.py" line="262"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
@@ -374,22 +400,21 @@
         <translation type="vanished">分析中... %1/%2</translation>
     </message>
     <message>
-        <location filename="../app.py" line="287"/>
+        <location filename="../app.py" line="295"/>
         <source>No analysis results to export</source>
         <translation>没有可导出的分析结果</translation>
     </message>
     <message>
-        <location filename="../app.py" line="295"/>
+        <location filename="../app.py" line="303"/>
         <source>About Font Charset Stats</source>
         <translation>关于字体字符集统计</translation>
     </message>
     <message>
-        <location filename="../app.py" line="298"/>
         <source>Analyze font character set coverage against
 Chinese / Japanese / Korean encoding standards.
 
 Powered by fonttools + PySide6</source>
-        <translation>分析字体对中日韩编码标准的字符集覆盖率。
+        <translation type="vanished">分析字体对中日韩编码标准的字符集覆盖率。
 
 由 fonttools + PySide6 驱动</translation>
     </message>

@@ -108,6 +108,9 @@ class MainWindow(QMainWindow):
         about_action = QAction(self.tr("&About"), self)
         about_action.triggered.connect(self._on_about)
         help_menu.addAction(about_action)
+        license_action = QAction(self.tr("&License"), self)
+        license_action.triggered.connect(self._on_license)
+        help_menu.addAction(license_action)
 
     def _setup_toolbar(self):
         toolbar = self.addToolBar("Main")
@@ -302,8 +305,37 @@ class MainWindow(QMainWindow):
             + self.tr(
                 "Analyze font character set coverage against\n"
                 "Chinese / Japanese / Korean encoding standards.\n\n"
+                "Copyright (c) 2026 Cccc_\n"
+                "Licensed under the MIT License.\n\n"
                 "Powered by fonttools + PySide6"
             ),
+        )
+
+    def _on_license(self):
+        QMessageBox.information(
+            self,
+            self.tr("MIT License"),
+            "font-charset-stats 0.1.0\n"
+            "Copyright (c) 2026 Cccc_\n\n"
+            "Permission is hereby granted, free of charge, to any person "
+            "obtaining a copy of this software and associated documentation "
+            'files (the "Software"), to deal in the Software without '
+            "restriction, including without limitation the rights to use, "
+            "copy, modify, merge, publish, distribute, sublicense, and/or "
+            "sell copies of the Software, and to permit persons to whom "
+            "the Software is furnished to do so, subject to the following "
+            "conditions:\n\n"
+            "The above copyright notice and this permission notice shall "
+            "be included in all copies or substantial portions of the "
+            "Software.\n\n"
+            'THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY '
+            "KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE "
+            "WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR "
+            "PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS "
+            "OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR "
+            "OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR "
+            "OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE "
+            "SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
         )
 
     def closeEvent(self, event):
