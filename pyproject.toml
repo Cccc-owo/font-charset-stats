@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "font-charset-stats"
+version = "0.1.0"
+description = "Analyze font character set coverage against Chinese/Japanese/Korean encoding standards"
+requires-python = ">=3.9"
+dependencies = [
+    "fonttools>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pyright",
+]
+
+[project.scripts]
+font-charset-stats = "font_charset_stats.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["font_charset_stats*"]
+
+[tool.setuptools.package-data]
+"font_charset_stats" = ["charsets/data/*.json"]
