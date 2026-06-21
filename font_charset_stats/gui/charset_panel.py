@@ -50,11 +50,11 @@ _CHARSET_ORDER = [
     "Dingbats",
     # ── Chinese ──
     "GB2312",
+    "GB12345",
     "GBK",
     "GB18030-Level1",
     "GB18030-Level2",
     "GB18030-Level3",
-    "GB12345",
     "Big5",
     "Big5-HKSCS",
     "CNS11643",
@@ -65,13 +65,11 @@ _CHARSET_ORDER = [
     "Japanese-Hiragana",
     "Japanese-Katakana",
     # ── Korean ──
-    "KSX1001-Hanja",
     "Korean-Hangul",
     "Korean-Jamo",
+    "KSX1001-Hanja",
     # ── CJK Unicode Blocks ──
     "CJK-Basic",
-    "CJK-Compat",
-    "CJK-CompatSup",
     "CJK-ExtA",
     "CJK-ExtB",
     "CJK-ExtC",
@@ -81,6 +79,8 @@ _CHARSET_ORDER = [
     "CJK-ExtG",
     "CJK-ExtH",
     "CJK-ExtI",
+    "CJK-Compat",
+    "CJK-CompatSup",
 ]
 
 _WESTERN_NAMES = set(_CHARSET_ORDER[: _CHARSET_ORDER.index(_WESTERN_CUTOFF) + 1])
@@ -130,7 +130,7 @@ class CharsetPanel(QGroupBox):
             item.setCheckState(Qt.CheckState.Checked)
             self._list.addItem(item)
             self._all_items.append(item)
-        self._apply_western_filter()
+        self._apply_all_filters()
 
     def _on_western_toggled(self):
         self._apply_all_filters()
