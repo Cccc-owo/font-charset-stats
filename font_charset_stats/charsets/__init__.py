@@ -21,6 +21,8 @@ def list_charsets() -> list[str]:
 
 ALL_CHARSETS = _all_charsets
 
+# NOTE: When adding a new charset module import below, also add its name(s)
+# to _CHARSET_ORDER in font_charset_stats/gui/charset_panel.py.
 import font_charset_stats.charsets.big5  # noqa: E402, F401
 import font_charset_stats.charsets.cjk  # noqa: E402, F401
 import font_charset_stats.charsets.cns  # noqa: E402, F401

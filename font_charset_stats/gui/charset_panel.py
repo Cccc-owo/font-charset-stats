@@ -19,6 +19,8 @@ from font_charset_stats.charsets.base import CharSet
 
 _WESTERN_CUTOFF = "Dingbats"
 
+# NOTE: When adding a new charset, also register it via the import block
+# in font_charset_stats/charsets/__init__.py.
 _CHARSET_ORDER = [
     # ── Latin / Western ──
     "Basic Latin",
