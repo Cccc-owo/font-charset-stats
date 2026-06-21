@@ -1,4 +1,5 @@
 """Coverage analysis engine — matches font codepoints against charset definitions."""
+
 from dataclasses import dataclass, field
 
 from font_charset_stats.charsets.base import CharSet
@@ -36,12 +37,14 @@ def analyze(
         if show_missing:
             missing = sorted(cs.codepoints - font_codepoints)
 
-        results.append(CoverageResult(
-            name=cs.name,
-            description=cs.description,
-            total=cs.total,
-            matched=len(matched),
-            missing=missing,
-        ))
+        results.append(
+            CoverageResult(
+                name=cs.name,
+                description=cs.description,
+                total=cs.total,
+                matched=len(matched),
+                missing=missing,
+            )
+        )
 
     return results

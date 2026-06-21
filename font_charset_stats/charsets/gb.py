@@ -1,4 +1,5 @@
 """GB encoding standards: GB2312, GBK, GB18030-2022 Level 1/2/3."""
+
 import codecs
 
 from font_charset_stats.charsets import register
@@ -26,32 +27,42 @@ def _build_gbk() -> set[int]:
     return result
 
 
-register(CharSet(
-    name="GB2312",
-    description="GB/T 2312-1980 — Simplified Chinese national standard (7,445 characters)",
-    builder=_build_gb2312,
-))
+register(
+    CharSet(
+        name="GB2312",
+        description="GB/T 2312-1980 — Simplified Chinese national standard (7,445 characters)",
+        builder=_build_gb2312,
+    )
+)
 
-register(CharSet(
-    name="GBK",
-    description="GBK — Extended Simplified Chinese, superset of GB2312 (~21,886 characters)",
-    builder=_build_gbk,
-))
+register(
+    CharSet(
+        name="GBK",
+        description="GBK — Extended Simplified Chinese, superset of GB2312 (~21,886 characters)",
+        builder=_build_gbk,
+    )
+)
 
-register(CharSet(
-    name="GB18030-Level1",
-    description="GB 18030-2022 Implementation Level 1 (mandatory) — GBK + Ext A + 66 URO additions (~27,584)",
-    builder=lambda: load_json("gb18030_level1.json"),
-))
+register(
+    CharSet(
+        name="GB18030-Level1",
+        description="GB 18030-2022 Implementation Level 1 (mandatory) — GBK + Ext A + 66 URO additions (~27,584)",
+        builder=lambda: load_json("gb18030_level1.json"),
+    )
+)
 
-register(CharSet(
-    name="GB18030-Level2",
-    description="GB 18030-2022 Implementation Level 2 — Level 1 + 196 TGH 2013 ideographs from Ext B/C/D/E",
-    builder=lambda: load_json("gb18030_level2.json"),
-))
+register(
+    CharSet(
+        name="GB18030-Level2",
+        description="GB 18030-2022 Implementation Level 2 — Level 1 + 196 TGH 2013 ideographs from Ext B/C/D/E",
+        builder=lambda: load_json("gb18030_level2.json"),
+    )
+)
 
-register(CharSet(
-    name="GB18030-Level3",
-    description="GB 18030-2022 Implementation Level 3 (full) — all encodable characters incl. Ext B-F, Kangxi, minority scripts",
-    builder=lambda: load_json("gb18030_level3.json"),
-))
+register(
+    CharSet(
+        name="GB18030-Level3",
+        description="GB 18030-2022 Implementation Level 3 (full) — all encodable characters incl. Ext B-F, Kangxi, minority scripts",
+        builder=lambda: load_json("gb18030_level3.json"),
+    )
+)

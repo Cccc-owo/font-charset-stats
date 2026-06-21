@@ -1,4 +1,5 @@
 """CLI entry point for font-charset-stats."""
+
 import argparse
 import sys
 
@@ -14,17 +15,21 @@ def main() -> None:
         description="Analyze font character set coverage against CJK encoding standards.",
     )
     parser.add_argument(
-        "font_path", nargs="?", default=None,
+        "font_path",
+        nargs="?",
+        default=None,
         help="Path to font file (.ttf, .otf, .woff, .woff2)",
     )
     parser.add_argument(
-        "--format", "-f",
+        "--format",
+        "-f",
         choices=["text", "json", "csv"],
         default="text",
         help="Output format (default: text)",
     )
     parser.add_argument(
-        "--charsets", "-c",
+        "--charsets",
+        "-c",
         help="Comma-separated list of charset names to analyze (default: all)",
     )
     parser.add_argument(
@@ -33,7 +38,8 @@ def main() -> None:
         help="Show missing codepoints for each charset",
     )
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         help="Write output to file instead of stdout",
     )
     parser.add_argument(
@@ -75,9 +81,13 @@ def main() -> None:
     else:
         charset_list = [ALL_CHARSETS[n] for n in list_charsets()]
 
-    results = analyze(font_info.codepoints, charset_list, show_missing=args.show_missing)
+    results = analyze(
+        font_info.codepoints, charset_list, show_missing=args.show_missing
+    )
 
-    output = format_report(font_info, results, fmt=args.format, show_missing=args.show_missing)
+    output = format_report(
+        font_info, results, fmt=args.format, show_missing=args.show_missing
+    )
 
     if args.output:
         with open(args.output, "w") as f:

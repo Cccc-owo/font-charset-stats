@@ -1,4 +1,5 @@
 """Big5 and Big5-HKSCS traditional Chinese encoding standards."""
+
 import codecs
 
 from font_charset_stats.charsets import register
@@ -28,14 +29,18 @@ def _build_big5hkscs() -> set[int]:
     return result
 
 
-register(CharSet(
-    name="Big5",
-    description="Big5 — Traditional Chinese encoding (Taiwan, ~13,000 characters)",
-    builder=_build_big5,
-))
+register(
+    CharSet(
+        name="Big5",
+        description="Big5 — Traditional Chinese encoding (Taiwan, ~13,000 characters)",
+        builder=_build_big5,
+    )
+)
 
-register(CharSet(
-    name="Big5-HKSCS",
-    description="Big5-HKSCS — Big5 + Hong Kong Supplementary Character Set (~18,000 characters)",
-    builder=_build_big5hkscs,
-))
+register(
+    CharSet(
+        name="Big5-HKSCS",
+        description="Big5-HKSCS — Big5 + Hong Kong Supplementary Character Set (~18,000 characters)",
+        builder=_build_big5hkscs,
+    )
+)

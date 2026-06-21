@@ -1,4 +1,5 @@
 """JIS X 0208 / JIS X 0213 Japanese encoding standards."""
+
 import codecs
 
 from font_charset_stats.charsets import register
@@ -18,20 +19,26 @@ def _build_jisx0213() -> set[int]:
     return result
 
 
-register(CharSet(
-    name="JIS0208-Level1",
-    description="JIS X 0208 Level 1 — Common-use Japanese kanji (2,965 characters)",
-    builder=lambda: load_json("jis0208_level1.json"),
-))
+register(
+    CharSet(
+        name="JIS0208-Level1",
+        description="JIS X 0208 Level 1 — Common-use Japanese kanji (2,965 characters)",
+        builder=lambda: load_json("jis0208_level1.json"),
+    )
+)
 
-register(CharSet(
-    name="JIS0208-Level2",
-    description="JIS X 0208 Level 2 — Secondary Japanese kanji (3,390 characters)",
-    builder=lambda: load_json("jis0208_level2.json"),
-))
+register(
+    CharSet(
+        name="JIS0208-Level2",
+        description="JIS X 0208 Level 2 — Secondary Japanese kanji (3,390 characters)",
+        builder=lambda: load_json("jis0208_level2.json"),
+    )
+)
 
-register(CharSet(
-    name="JIS0213",
-    description="JIS X 0213 (EUC-JIS-2004) — Extended Japanese standard incl. JIS X 0208 + Plane 1 & 2 additions",
-    builder=_build_jisx0213,
-))
+register(
+    CharSet(
+        name="JIS0213",
+        description="JIS X 0213 (EUC-JIS-2004) — Extended Japanese standard incl. JIS X 0208 + Plane 1 & 2 additions",
+        builder=_build_jisx0213,
+    )
+)
