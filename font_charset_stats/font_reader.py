@@ -18,7 +18,8 @@ class FontInfo:
 
 
 def probe_tc(path: str | Path) -> list[tuple[int, str, str, int]]:
-    """Return list of (font_number, family_name, style_name, weight_class) for each face in a TTC/OTC."""
+    """Return list of (font_number, family_name, style_name, weight_class)
+    for each face in a TTC/OTC."""
     path = Path(path)
     if not path.exists():
         return []
@@ -55,9 +56,7 @@ def probe_tc(path: str | Path) -> list[tuple[int, str, str, int]]:
                     weight = getattr(os2, "usWeightClass", 400)
                 glyphs = getattr(f.get("maxp"), "numGlyphs", 0) if f.get("maxp") else 0
                 f.close()
-                variants.append(
-                    (i, family or f"Face {i}", style or f"{glyphs} glyphs", weight)
-                )
+                variants.append((i, family or f"Face {i}", style or f"{glyphs} glyphs", weight))
             except Exception:
                 variants.append((i, f"Face {i}", "?", 400))
         return variants
@@ -71,7 +70,7 @@ def _deduce_format(font: TTFont) -> str:
         return "woff2"
     if flavor == "woff":
         return "woff"
-    if "CFF " in font.keys() or "CFF2" in font.keys():
+    if "CFF " in font or "CFF2" in font:
         return "opentype"
     return "truetype"
 

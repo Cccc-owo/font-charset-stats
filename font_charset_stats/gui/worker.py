@@ -30,9 +30,7 @@ class AnalysisWorker(QObject):
         completed = 0
         try:
             for font in fonts:
-                font_results = analyze(
-                    font.codepoints, charsets, show_missing=show_missing
-                )
+                font_results = analyze(font.codepoints, charsets, show_missing=show_missing)
                 results.extend(font_results)
                 completed += len(charsets)
                 self.progress.emit(completed, total)

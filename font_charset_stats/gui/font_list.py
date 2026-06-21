@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -13,7 +14,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
 )
-from PySide6.QtCore import Signal
 
 from font_charset_stats.font_reader import FontInfo
 from font_charset_stats.gui import SUPPORTED_EXTS
@@ -46,9 +46,7 @@ class FontListPanel(QGroupBox):
         variant_layout = QHBoxLayout()
         variant_layout.addWidget(QLabel("Variant:"))
         self._variant_combo = QComboBox()
-        self._variant_combo.setSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
-        )
+        self._variant_combo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self._variant_combo.setMinimumWidth(160)
         self._variant_combo.setEnabled(False)
         self._variant_combo.currentIndexChanged.connect(self._on_variant_selected)
@@ -108,9 +106,7 @@ class FontListPanel(QGroupBox):
             variants = self._variants.get(row, [])
             if variants:
                 for num, family, style, weight_val in variants:
-                    self._variant_combo.addItem(
-                        f"{family} — {style} (w{weight_val})", num
-                    )
+                    self._variant_combo.addItem(f"{family} — {style} (w{weight_val})", num)
                 self._variant_combo.setEnabled(True)
             else:
                 self._variant_combo.setEnabled(False)

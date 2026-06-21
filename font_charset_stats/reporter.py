@@ -8,14 +8,13 @@ from font_charset_stats.analyzer import CoverageResult
 from font_charset_stats.font_reader import FontInfo
 
 
-def _format_text(
-    font_info: FontInfo, results: list[CoverageResult], show_missing: bool
-) -> str:
+def _format_text(font_info: FontInfo, results: list[CoverageResult], show_missing: bool) -> str:
     lines: list[str] = []
     lines.append(f"Font: {font_info.family_name} {font_info.style_name}")
     lines.append(f"Path: {font_info.path}")
     lines.append(
-        f"Format: {font_info.format} | Glyphs: {font_info.glyph_count} | Codepoints: {len(font_info.codepoints)}"
+        f"Format: {font_info.format} | Glyphs: {font_info.glyph_count}"
+        f" | Codepoints: {len(font_info.codepoints)}"
     )
     lines.append("")
 
@@ -55,9 +54,7 @@ def _format_text(
     return "\n".join(lines)
 
 
-def _format_json(
-    font_info: FontInfo, results: list[CoverageResult], show_missing: bool
-) -> str:
+def _format_json(font_info: FontInfo, results: list[CoverageResult], show_missing: bool) -> str:
     output = {
         "font": {
             "path": str(font_info.path),
@@ -86,9 +83,7 @@ def _format_json(
     return json.dumps(output, indent=2, ensure_ascii=False)
 
 
-def _format_csv(
-    _font_info: FontInfo, results: list[CoverageResult], _show_missing: bool
-) -> str:
+def _format_csv(_font_info: FontInfo, results: list[CoverageResult], _show_missing: bool) -> str:
     buf = io.StringIO()
     writer = csv.writer(buf)
     writer.writerow(["charset", "total", "matched", "coverage"])
@@ -109,7 +104,5 @@ def format_report(
         "csv": _format_csv,
     }
     if fmt not in formatters:
-        raise ValueError(
-            f"Unknown format: {fmt!r}. Available: {list(formatters.keys())}"
-        )
+        raise ValueError(f"Unknown format: {fmt!r}. Available: {list(formatters.keys())}")
     return formatters[fmt](font_info, results, show_missing)

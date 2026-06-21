@@ -1,16 +1,18 @@
 """Charset selection panel with checkboxes and search filter."""
 
+import contextlib
+
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
     QGroupBox,
+    QHBoxLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
     QPushButton,
     QVBoxLayout,
-    QHBoxLayout,
 )
-from PySide6.QtCore import Qt, Signal
 
 from font_charset_stats.charsets import get_charset
 from font_charset_stats.charsets.base import CharSet
@@ -164,10 +166,8 @@ class CharsetPanel(QGroupBox):
                 continue
             if item.checkState() == Qt.CheckState.Checked:
                 name = item.data(Qt.UserRole)
-                try:
+                with contextlib.suppress(KeyError):
                     result.append(get_charset(name))
-                except KeyError:
-                    pass
         return result
 
     def selected_names(self) -> list[str]:

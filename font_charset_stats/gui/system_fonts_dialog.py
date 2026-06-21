@@ -1,24 +1,24 @@
 """Dialog for browsing and loading system-installed fonts."""
 
+import contextlib
 import os
 import platform
 import subprocess
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import Qt, QThread, QTimer, Signal
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
-    QProgressBar,
-    QDialogButtonBox,
     QMessageBox,
+    QProgressBar,
+    QVBoxLayout,
 )
-from PySide6.QtCore import Qt, QThread, Signal, QTimer
-from PySide6.QtGui import QFont
-
 
 _FC_WEIGHT_REGULAR = 80
 
@@ -74,7 +74,7 @@ def _find_system_fonts() -> list[tuple[str, str, int, int]]:
             Path.home() / "Library/Fonts",
         ]
     elif system == "Windows":
-        windir = Path(os.environ.get("SystemRoot", r"C:\Windows"))
+        windir = Path(os.environ.get("SYSTEMROOT", r"C:\Windows"))
         font_dirs = [windir / "Fonts"]
 
     pairs: list[tuple[str, str, int, int]] = []
@@ -94,16 +94,12 @@ def _find_system_fonts() -> list[tuple[str, str, int, int]]:
                 if name_table:
                     for record in name_table.names:
                         if record.nameID == 1:
-                            try:
+                            with contextlib.suppress(UnicodeDecodeError, AttributeError):
                                 name = record.toUnicode()
-                            except (UnicodeDecodeError, AttributeError):
-                                pass
                             break
                 os2 = font.get("OS/2")
                 if os2:
-                    weight = max(
-                        0, min(210, getattr(os2, "usWeightClass", 400) * 210 // 900)
-                    )
+                    weight = max(0, min(210, getattr(os2, "usWeightClass", 400) * 210 // 900))
                 pairs.append((name or fp.stem, str(fp), 0, weight))
                 font.close()
             except Exception:
@@ -157,8 +153,7 @@ class SystemFontsDialog(QDialog):
         layout.addWidget(self._list)
 
         buttons = QDialogButtonBox(
-            QDialogButtonBox.StandardButton.Open
-            | QDialogButtonBox.StandardButton.Cancel
+            QDialogButtonBox.StandardButton.Open | QDialogButtonBox.StandardButton.Cancel
         )
         buttons.accepted.connect(self._on_accept)
         buttons.rejected.connect(self.reject)
@@ -178,9 +173,7 @@ class SystemFontsDialog(QDialog):
         for family, filepath, face_idx, weight in self._fonts:
             key = family.lower()
             prev = best.get(key)
-            if prev is None or abs(weight - _FC_WEIGHT_REGULAR) < abs(
-                prev[3] - _FC_WEIGHT_REGULAR
-            ):
+            if prev is None or abs(weight - _FC_WEIGHT_REGULAR) < abs(prev[3] - _FC_WEIGHT_REGULAR):
                 best[key] = (family, filepath, face_idx, weight)
 
         stderr_fd = sys.stderr.fileno()

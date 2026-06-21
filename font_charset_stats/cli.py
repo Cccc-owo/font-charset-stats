@@ -81,13 +81,9 @@ def main() -> None:
     else:
         charset_list = [ALL_CHARSETS[n] for n in list_charsets()]
 
-    results = analyze(
-        font_info.codepoints, charset_list, show_missing=args.show_missing
-    )
+    results = analyze(font_info.codepoints, charset_list, show_missing=args.show_missing)
 
-    output = format_report(
-        font_info, results, fmt=args.format, show_missing=args.show_missing
-    )
+    output = format_report(font_info, results, fmt=args.format, show_missing=args.show_missing)
 
     if args.output:
         with open(args.output, "w") as f:

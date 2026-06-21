@@ -20,6 +20,13 @@ Or with uv:
 uv tool install font-charset-stats
 ```
 
+For development:
+
+```bash
+uv sync               # install deps + dev tooling (ruff, pyright, pre-commit)
+uv sync --extra gui   # also install GUI deps (PySide6, matplotlib)
+```
+
 ## Usage
 
 ### CLI
@@ -36,7 +43,7 @@ Output formats: `text` (default), `json`, `csv`.
 ### GUI
 
 ```bash
-font-charset-stats-gui
+uv run font-charset-stats-gui
 # or
 python -m font_charset_stats.gui
 ```

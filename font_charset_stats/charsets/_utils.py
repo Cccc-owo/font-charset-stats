@@ -1,8 +1,8 @@
 """Shared utilities for charset data loading and codec iteration."""
 
-from collections.abc import Callable
 import json
 import pathlib
+from collections.abc import Callable
 
 
 def load_json(filename: str) -> set[int]:
@@ -10,9 +10,7 @@ def load_json(filename: str) -> set[int]:
     return set(json.loads(path.read_text()))
 
 
-def try_decode(
-    decoder: Callable[[bytes], tuple[str, int]], seq: bytes, result: set[int]
-) -> None:
+def try_decode(decoder: Callable[[bytes], tuple[str, int]], seq: bytes, result: set[int]) -> None:
     try:
         chars, _ = decoder(seq)
         result.update(ord(c) for c in chars)

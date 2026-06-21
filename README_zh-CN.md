@@ -20,6 +20,13 @@ pip install "font-charset-stats[gui]"
 uv tool install font-charset-stats
 ```
 
+开发环境：
+
+```bash
+uv sync               # 安装依赖 + 开发工具 (ruff, pyright, pre-commit)
+uv sync --extra gui   # 同时安装 GUI 依赖 (PySide6, matplotlib)
+```
+
 ## 使用
 
 ### 命令行
@@ -36,7 +43,7 @@ font-charset-stats font.ttf --charsets GB2312,GBK --show-missing
 ### 图形界面
 
 ```bash
-font-charset-stats-gui
+uv run font-charset-stats-gui
 # 或
 python -m font_charset_stats.gui
 ```
