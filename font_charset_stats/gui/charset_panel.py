@@ -1,6 +1,6 @@
 """Charset selection panel with checkboxes and search filter."""
 
-import contextlib
+import logging
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -121,8 +121,6 @@ class CharsetPanel(QGroupBox):
     def _populate(self):
         for name in _CHARSET_ORDER:
             cs = get_charset(name)
-            if cs is None:
-                continue
             item = QListWidgetItem(f"{name}  ({cs.total:,d} cp)")
             item.setData(Qt.ItemDataRole.UserRole, name)
             item.setToolTip(cs.description)
@@ -133,20 +131,23 @@ class CharsetPanel(QGroupBox):
         self._apply_western_filter()
 
     def _on_western_toggled(self):
-        self._apply_western_filter()
+        self._apply_all_filters()
         self.selection_changed.emit()
 
-    def _apply_western_filter(self):
-        show = self._western_cb.isChecked()
+    def _apply_all_filters(self):
+        show_western = self._western_cb.isChecked()
+        filter_text = self._filter.text().lower()
         for item in self._all_items:
             name = item.data(Qt.ItemDataRole.UserRole)
-            if name in _WESTERN_NAMES:
-                item.setHidden(not show)
+            hidden = False
+            if not show_western and name in _WESTERN_NAMES:
+                hidden = True
+            if filter_text and filter_text not in item.text().lower():
+                hidden = True
+            item.setHidden(hidden)
 
-    def _apply_filter(self, text: str):
-        lower = text.lower()
-        for item in self._all_items:
-            item.setHidden(bool(lower and lower not in item.text().lower()))
+    def _apply_filter(self, _text: str):
+        self._apply_all_filters()
 
     def _select_all(self):
         for item in self._all_items:
@@ -174,8 +175,10 @@ class CharsetPanel(QGroupBox):
                 continue
             if item.checkState() == Qt.CheckState.Checked:
                 name = item.data(Qt.UserRole)
-                with contextlib.suppress(KeyError):
+                try:
                     result.append(get_charset(name))
+                except KeyError:
+                    logging.getLogger(__name__).warning("Charset not found in registry: %s", name)
         return result
 
     def selected_names(self) -> list[str]:
