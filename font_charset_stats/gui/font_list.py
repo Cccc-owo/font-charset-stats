@@ -46,6 +46,7 @@ class FontListPanel(QGroupBox):
         variant_layout = QHBoxLayout()
         variant_layout.addWidget(QLabel("Variant:"))
         self._variant_combo = QComboBox()
+        self._variant_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._variant_combo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         self._variant_combo.setMinimumWidth(160)
         self._variant_combo.setEnabled(False)

@@ -7,6 +7,7 @@ from PySide6.QtCore import QSize, Qt, QThread, QTimer
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QFileDialog,
     QMainWindow,
     QMessageBox,
@@ -34,6 +35,7 @@ class MainWindow(QMainWindow):
         self._last_results: list = []
         self._analyze_fonts_snapshot: list[FontInfo] = []
         self._analyze_charset_order: list[str] = []
+        self._analyzing = False
 
         self._debounce = QTimer()
         self._debounce.setSingleShot(True)
@@ -118,6 +120,13 @@ class MainWindow(QMainWindow):
         export_btn.clicked.connect(self._on_export)
         toolbar.addWidget(export_btn)
 
+        toolbar.addSeparator()
+
+        self._show_controls_cb = QCheckBox("Show Controls")
+        self._show_controls_cb.setChecked(False)
+        self._show_controls_cb.toggled.connect(self._on_show_controls_toggled)
+        toolbar.addWidget(self._show_controls_cb)
+
     def _setup_central(self):
         splitter = QSplitter(Qt.Horizontal)
 
@@ -183,6 +192,7 @@ class MainWindow(QMainWindow):
             self._debounce.start()
         else:
             self._last_results = []
+            self._results_view.set_results([], [])
 
     def _on_system_fonts(self):
         from font_charset_stats.gui.system_fonts_dialog import SystemFontsDialog
@@ -199,19 +209,28 @@ class MainWindow(QMainWindow):
         self._worker.load_font(path, font_number=face_index)
 
     def _on_analyze(self):
+        if self._analyzing:
+            return
         fonts = self._font_panel.fonts()
         charsets = self._charset_panel.selected_charsets()
         if not fonts or not charsets:
             self.statusBar().showMessage("No fonts or charsets selected")
             return
 
+        self._analyzing = True
         self._analyze_fonts_snapshot = list(fonts)
         self._analyze_charset_order = self._charset_panel.selected_names()
         self.statusBar().showMessage("Analyzing...")
         self._analyze_btn.setEnabled(False)
-        self._worker.analyze_fonts(fonts, charsets, show_missing=True)
+        self._worker.analyze_fonts(
+            fonts,
+            charsets,
+            show_missing=True,
+            exclude_controls=not self._show_controls_cb.isChecked(),
+        )
 
     def _on_analysis_complete(self, results):
+        self._analyzing = False
         self._last_results = results
         self._results_view.set_results(
             self._analyze_fonts_snapshot, results, self._analyze_charset_order
@@ -227,12 +246,21 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Analyzing... {completed}/{total}")
 
     def _on_auto_analyze(self):
+        if self._analyzing:
+            return
         if self._font_panel.fonts() and self._charset_panel.selected_charsets():
             self._on_analyze()
 
     def _maybe_auto_analyze(self):
+        if self._analyzing:
+            return
         if self._font_panel.fonts():
             self._debounce.start()
+
+    def _on_show_controls_toggled(self):
+        self._results_view.set_show_controls(self._show_controls_cb.isChecked())
+        if self._font_panel.fonts() and self._charset_panel.selected_charsets():
+            self._on_analyze()
 
     def _on_batch(self):
         from font_charset_stats.gui.batch_dialog import BatchDialog

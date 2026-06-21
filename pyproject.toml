@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "font-charset-stats"
 version = "0.1.0"
 description = "Analyze font character set coverage against Chinese/Japanese/Korean encoding standards"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "fonttools>=4.0",
 ]

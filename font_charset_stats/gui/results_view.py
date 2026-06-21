@@ -7,7 +7,6 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (
-    QCheckBox,
     QComboBox,
     QHBoxLayout,
     QHeaderView,
@@ -203,6 +202,7 @@ class ResultsView(QTabWidget):
         self._results: list[CoverageResult] = []
         self._font_families: dict[str, str] = {}
         self._charset_order: list[str] = []
+        self._show_controls = False
 
         self._setup_coverage_tab()
         if HAS_MPL:
@@ -240,16 +240,14 @@ class ResultsView(QTabWidget):
         selector_layout = QHBoxLayout()
         selector_layout.addWidget(QLabel("Charset:"))
         self._missing_charset_combo = QComboBox()
+        self._missing_charset_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._missing_charset_combo.currentTextChanged.connect(self._update_missing_view)
         selector_layout.addWidget(self._missing_charset_combo)
         selector_layout.addWidget(QLabel("Font:"))
         self._missing_font_combo = QComboBox()
+        self._missing_font_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._missing_font_combo.currentIndexChanged.connect(self._update_missing_view)
         selector_layout.addWidget(self._missing_font_combo)
-
-        self._show_ctrl_cb = QCheckBox("Show Controls")
-        self._show_ctrl_cb.toggled.connect(self._update_missing_view)
-        selector_layout.addWidget(self._show_ctrl_cb)
 
         selector_layout.addStretch()
 
@@ -272,6 +270,7 @@ class ResultsView(QTabWidget):
         font_layout = QHBoxLayout()
         font_layout.addWidget(QLabel("Font:"))
         self._preview_font_combo = QComboBox()
+        self._preview_font_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._preview_font_combo.currentTextChanged.connect(self._update_preview_font)
         font_layout.addWidget(self._preview_font_combo)
         font_layout.addStretch()
@@ -398,6 +397,10 @@ class ResultsView(QTabWidget):
         if index == self._missing_tab_idx and self._fonts:
             self._update_missing_view()
 
+    def set_show_controls(self, show: bool) -> None:
+        self._show_controls = show
+        self._update_missing_view()
+
     def _update_missing_view(self):
         charset_name = self._missing_charset_combo.currentText()
         font_idx = self._missing_font_combo.currentIndex()
@@ -409,7 +412,7 @@ class ResultsView(QTabWidget):
             return
 
         missing = sorted(cs.codepoints - self._fonts[font_idx].codepoints)
-        if not self._show_ctrl_cb.isChecked():
+        if not self._show_controls:
             missing = [cp for cp in missing if not (cp <= 0x1F or 0x7F <= cp <= 0x9F)]
         total = len(missing)
         grouped = _group_missing_by_block(missing)

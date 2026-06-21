@@ -5,6 +5,10 @@ from dataclasses import dataclass, field
 from font_charset_stats.charsets.base import CharSet
 
 
+def _is_control(cp: int) -> bool:
+    return cp <= 0x1F or 0x7F <= cp <= 0x9F
+
+
 @dataclass
 class CoverageResult:
     name: str
@@ -28,20 +32,29 @@ def analyze(
     font_codepoints: set[int],
     charsets: list[CharSet],
     show_missing: bool = False,
+    exclude_controls: bool = False,
 ) -> list[CoverageResult]:
     results: list[CoverageResult] = []
 
+    font_cps = font_codepoints
+    if exclude_controls:
+        font_cps = {cp for cp in font_codepoints if not _is_control(cp)}
+
     for cs in charsets:
-        matched = font_codepoints & cs.codepoints
+        cs_cps = cs.codepoints
+        if exclude_controls:
+            cs_cps = {cp for cp in cs.codepoints if not _is_control(cp)}
+
+        matched = font_cps & cs_cps
         missing: list[int] = []
         if show_missing:
-            missing = sorted(cs.codepoints - font_codepoints)
+            missing = sorted(cs_cps - font_cps)
 
         results.append(
             CoverageResult(
                 name=cs.name,
                 description=cs.description,
-                total=cs.total,
+                total=len(cs_cps),
                 matched=len(matched),
                 missing=missing,
             )

@@ -23,14 +23,23 @@ class AnalysisWorker(QObject):
             self.error_occurred.emit(f"Failed to load font: {e}")
 
     def analyze_fonts(
-        self, fonts: list[FontInfo], charsets: list[CharSet], show_missing: bool = False
+        self,
+        fonts: list[FontInfo],
+        charsets: list[CharSet],
+        show_missing: bool = False,
+        exclude_controls: bool = False,
     ):
         results: list[CoverageResult] = []
         total = len(fonts) * len(charsets)
         completed = 0
         try:
             for font in fonts:
-                font_results = analyze(font.codepoints, charsets, show_missing=show_missing)
+                font_results = analyze(
+                    font.codepoints,
+                    charsets,
+                    show_missing=show_missing,
+                    exclude_controls=exclude_controls,
+                )
                 results.extend(font_results)
                 completed += len(charsets)
                 self.progress.emit(completed, total)
