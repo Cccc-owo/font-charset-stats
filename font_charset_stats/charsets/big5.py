@@ -3,7 +3,7 @@
 import codecs
 
 from font_charset_stats.charsets import register
-from font_charset_stats.charsets._utils import try_decode
+from font_charset_stats.charsets._utils import load_or_build, try_decode
 from font_charset_stats.charsets.base import CharSet
 
 
@@ -33,7 +33,7 @@ register(
     CharSet(
         name="Big5",
         description="Big5 — Traditional Chinese encoding (Taiwan, ~13,000 characters)",
-        builder=_build_big5,
+        builder=load_or_build("big5.json", _build_big5),
     )
 )
 
@@ -41,6 +41,6 @@ register(
     CharSet(
         name="Big5-HKSCS",
         description="Big5-HKSCS — Big5 + Hong Kong Supplementary Character Set (~18,000 characters)",
-        builder=_build_big5hkscs,
+        builder=load_or_build("big5hkscs.json", _build_big5hkscs),
     )
 )

@@ -3,7 +3,7 @@
 import codecs
 
 from font_charset_stats.charsets import register
-from font_charset_stats.charsets._utils import load_json, try_decode
+from font_charset_stats.charsets._utils import load_json, load_or_build, try_decode
 from font_charset_stats.charsets.base import CharSet
 
 
@@ -31,7 +31,7 @@ register(
     CharSet(
         name="GB2312",
         description="GB/T 2312-1980 — Simplified Chinese national standard (7,445 characters)",
-        builder=_build_gb2312,
+        builder=load_or_build("gb2312.json", _build_gb2312),
     )
 )
 
@@ -39,7 +39,7 @@ register(
     CharSet(
         name="GBK",
         description="GBK — Extended Simplified Chinese, superset of GB2312 (~21,886 characters)",
-        builder=_build_gbk,
+        builder=load_or_build("gbk.json", _build_gbk),
     )
 )
 

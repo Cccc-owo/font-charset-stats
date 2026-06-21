@@ -3,7 +3,7 @@
 import codecs
 
 from font_charset_stats.charsets import register
-from font_charset_stats.charsets._utils import load_json, try_decode
+from font_charset_stats.charsets._utils import load_json, load_or_build, try_decode
 from font_charset_stats.charsets.base import CharSet
 
 
@@ -39,6 +39,6 @@ register(
     CharSet(
         name="JIS0213",
         description="JIS X 0213 (EUC-JIS-2004) — Extended Japanese standard incl. JIS X 0208 + Plane 1 & 2 additions",
-        builder=_build_jisx0213,
+        builder=load_or_build("jis0213.json", _build_jisx0213),
     )
 )
