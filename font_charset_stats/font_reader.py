@@ -35,6 +35,7 @@ def probe_tc(path: str | Path) -> list[tuple[int, str, str, int]]:
 
         variants: list[tuple[int, str, str, int]] = []
         for i in range(count):
+            f = None
             try:
                 f = TTFont(path, fontNumber=i)
                 family = ""
@@ -55,10 +56,12 @@ def probe_tc(path: str | Path) -> list[tuple[int, str, str, int]]:
                 if os2:
                     weight = getattr(os2, "usWeightClass", 400)
                 glyphs = getattr(f.get("maxp"), "numGlyphs", 0) if f.get("maxp") else 0
-                f.close()
                 variants.append((i, family or f"Face {i}", style or f"{glyphs} glyphs", weight))
             except Exception:
                 variants.append((i, f"Face {i}", "?", 400))
+            finally:
+                if f is not None:
+                    f.close()
         return variants
     except Exception:
         return []
@@ -71,6 +74,8 @@ def _deduce_format(font: TTFont) -> str:
     if flavor == "woff":
         return "woff"
     if "CFF " in font or "CFF2" in font:
+        return "opentype"
+    if "GSUB" in font or "GPOS" in font:
         return "opentype"
     return "truetype"
 
