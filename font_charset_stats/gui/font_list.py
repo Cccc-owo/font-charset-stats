@@ -44,7 +44,8 @@ class FontListPanel(QGroupBox):
         self._view.selectionModel().selectionChanged.connect(self._on_selection_changed)
 
         variant_layout = QHBoxLayout()
-        variant_layout.addWidget(QLabel(self.tr("Variant:")))
+        self._variant_label = QLabel(self.tr("Variant:"))
+        variant_layout.addWidget(self._variant_label)
         self._variant_combo = QComboBox()
         self._variant_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._variant_combo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -73,6 +74,13 @@ class FontListPanel(QGroupBox):
 
     def _on_system_fonts(self):
         self.system_fonts_requested.emit()
+
+    def retranslate(self):
+        self.setTitle(self.tr("Fonts"))
+        self._variant_label.setText(self.tr("Variant:"))
+        self._add_btn.setText(self.tr("Add"))
+        self._remove_btn.setText(self.tr("Remove"))
+        self._system_btn.setText(self.tr("System Fonts..."))
 
     def _on_add(self):
         paths, _ = QFileDialog.getOpenFileNames(

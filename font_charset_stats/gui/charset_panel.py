@@ -160,6 +160,13 @@ class CharsetPanel(QGroupBox):
                 item.setCheckState(Qt.CheckState.Unchecked)
         self.selection_changed.emit()
 
+    def retranslate(self):
+        self.setTitle(self.tr("Charsets"))
+        self._filter.setPlaceholderText(self.tr("Filter charsets..."))
+        self._western_cb.setText(self.tr("Show Western Unicode Blocks"))
+        self._select_all_btn.setText(self.tr("Select All"))
+        self._deselect_all_btn.setText(self.tr("Deselect All"))
+
     def selected_charsets(self) -> list[CharSet]:
         result: list[CharSet] = []
         for item in self._all_items:

@@ -210,7 +210,6 @@ class ResultsView(QTabWidget):
         self._setup_missing_tab()
         self._setup_preview_tab()
 
-        self._missing_tab_idx = self.indexOf(self._missing_widget)
         self.currentChanged.connect(self._on_tab_changed)
 
     def _setup_coverage_tab(self):
@@ -222,6 +221,7 @@ class ResultsView(QTabWidget):
         self._coverage_table.setAlternatingRowColors(True)
         self._coverage_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.addTab(self._coverage_table, self.tr("Coverage"))
+        self._coverage_tab_idx = self.indexOf(self._coverage_table)
 
     def _setup_chart_tab(self) -> None:
         assert Figure is not None and FigureCanvasQTAgg is not None
@@ -229,6 +229,7 @@ class ResultsView(QTabWidget):
         self._canvas = FigureCanvasQTAgg(self._figure)
         self._ax = self._figure.add_subplot(111)
         self.addTab(self._canvas, self.tr("Chart"))
+        self._chart_tab_idx = self.indexOf(self._canvas)
 
     def _setup_missing_tab(self):
         widget = QWidget()
@@ -261,6 +262,7 @@ class ResultsView(QTabWidget):
         layout.addWidget(self._missing_tree)
 
         self.addTab(widget, self.tr("Missing"))
+        self._missing_tab_idx = self.indexOf(widget)
         self._missing_widget = widget
 
     def _setup_preview_tab(self):
@@ -285,6 +287,8 @@ class ResultsView(QTabWidget):
         widget = QWidget()
         widget.setLayout(layout)
         self.addTab(widget, self.tr("Preview"))
+        self._preview_tab_idx = self.indexOf(widget)
+        self._preview_widget = widget
 
     def set_results(
         self,
@@ -402,6 +406,19 @@ class ResultsView(QTabWidget):
 
     def set_show_controls(self, show: bool) -> None:
         self._show_controls = show
+        self._update_missing_view()
+
+    def retranslate(self):
+        self.setTabText(self._coverage_tab_idx, self.tr("Coverage"))
+        if HAS_MPL:
+            self.setTabText(self._chart_tab_idx, self.tr("Chart"))
+        self.setTabText(self._missing_tab_idx, self.tr("Missing"))
+        self._missing_tree.setHeaderLabels([self.tr("Codepoint"), self.tr("Character")])
+        self._expand_placeholder = self.tr("Click to expand...")
+        self._preview_text.setPlaceholderText(
+            self.tr("Type text to preview with the selected font...")
+        )
+        self.setTabText(self._preview_tab_idx, self.tr("Preview"))
         self._update_missing_view()
 
     def _update_missing_view(self):

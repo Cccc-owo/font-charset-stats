@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import cast
 
-from PySide6.QtCore import QSize, Qt, QThread, QTimer
+from PySide6.QtCore import QEvent, QSize, Qt, QThread, QTimer
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
@@ -65,64 +65,65 @@ class MainWindow(QMainWindow):
 
     def _setup_menu(self):
         menu = self.menuBar()
+        menu.clear()
 
-        file_menu = menu.addMenu(self.tr("&File"))
+        self._file_menu = menu.addMenu(self.tr("&File"))
 
-        open_action = QAction(self.tr("&Open Font..."), self)
-        open_action.setShortcut("Ctrl+O")
-        open_action.triggered.connect(self._on_open_file)
-        file_menu.addAction(open_action)
+        self._open_action = QAction(self.tr("&Open Font..."), self)
+        self._open_action.setShortcut("Ctrl+O")
+        self._open_action.triggered.connect(self._on_open_file)
+        self._file_menu.addAction(self._open_action)
 
-        batch_action = QAction(self.tr("&Batch Analyze..."), self)
-        batch_action.setShortcut("Ctrl+B")
-        batch_action.triggered.connect(self._on_batch)
-        file_menu.addAction(batch_action)
+        self._batch_action = QAction(self.tr("&Batch Analyze..."), self)
+        self._batch_action.setShortcut("Ctrl+B")
+        self._batch_action.triggered.connect(self._on_batch)
+        self._file_menu.addAction(self._batch_action)
 
-        file_menu.addSeparator()
+        self._file_menu.addSeparator()
 
-        export_action = QAction(self.tr("&Export Report..."), self)
-        export_action.setShortcut("Ctrl+E")
-        export_action.triggered.connect(self._on_export)
-        file_menu.addAction(export_action)
+        self._export_action = QAction(self.tr("&Export Report..."), self)
+        self._export_action.setShortcut("Ctrl+E")
+        self._export_action.triggered.connect(self._on_export)
+        self._file_menu.addAction(self._export_action)
 
-        file_menu.addSeparator()
+        self._file_menu.addSeparator()
 
-        quit_action = QAction(self.tr("&Quit"), self)
-        quit_action.setShortcut("Ctrl+Q")
-        quit_action.triggered.connect(self.close)
-        file_menu.addAction(quit_action)
+        self._quit_action = QAction(self.tr("&Quit"), self)
+        self._quit_action.setShortcut("Ctrl+Q")
+        self._quit_action.triggered.connect(self.close)
+        self._file_menu.addAction(self._quit_action)
 
-        lang_menu = menu.addMenu(self.tr("&Language"))
+        self._lang_menu = menu.addMenu(self.tr("&Language"))
         en_action = QAction("English", self)
         en_action.triggered.connect(
             lambda: switch_language(cast(QApplication, QApplication.instance()), "")
         )
-        lang_menu.addAction(en_action)
+        self._lang_menu.addAction(en_action)
         zh_action = QAction("中文", self)
         zh_action.triggered.connect(
             lambda: switch_language(cast(QApplication, QApplication.instance()), "zh_CN")
         )
-        lang_menu.addAction(zh_action)
+        self._lang_menu.addAction(zh_action)
 
-        help_menu = menu.addMenu(self.tr("&Help"))
-        about_action = QAction(self.tr("&About"), self)
-        about_action.triggered.connect(self._on_about)
-        help_menu.addAction(about_action)
-        license_action = QAction(self.tr("&License"), self)
-        license_action.triggered.connect(self._on_license)
-        help_menu.addAction(license_action)
+        self._help_menu = menu.addMenu(self.tr("&Help"))
+        self._about_action = QAction(self.tr("&About"), self)
+        self._about_action.triggered.connect(self._on_about)
+        self._help_menu.addAction(self._about_action)
+        self._license_action = QAction(self.tr("&License"), self)
+        self._license_action.triggered.connect(self._on_license)
+        self._help_menu.addAction(self._license_action)
 
     def _setup_toolbar(self):
         toolbar = self.addToolBar("Main")
         toolbar.setIconSize(QSize(16, 16))
 
-        open_btn = QPushButton(self.tr("Open Font"))
-        open_btn.clicked.connect(self._on_open_file)
-        toolbar.addWidget(open_btn)
+        self._open_btn = QPushButton(self.tr("Open Font"))
+        self._open_btn.clicked.connect(self._on_open_file)
+        toolbar.addWidget(self._open_btn)
 
-        batch_btn = QPushButton(self.tr("Batch"))
-        batch_btn.clicked.connect(self._on_batch)
-        toolbar.addWidget(batch_btn)
+        self._batch_btn = QPushButton(self.tr("Batch"))
+        self._batch_btn.clicked.connect(self._on_batch)
+        toolbar.addWidget(self._batch_btn)
 
         toolbar.addSeparator()
 
@@ -133,9 +134,9 @@ class MainWindow(QMainWindow):
 
         toolbar.addSeparator()
 
-        export_btn = QPushButton(self.tr("Export"))
-        export_btn.clicked.connect(self._on_export)
-        toolbar.addWidget(export_btn)
+        self._export_btn = QPushButton(self.tr("Export"))
+        self._export_btn.clicked.connect(self._on_export)
+        toolbar.addWidget(self._export_btn)
 
         toolbar.addSeparator()
 
@@ -337,6 +338,31 @@ class MainWindow(QMainWindow):
             "OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE "
             "SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
         )
+
+    def changeEvent(self, event):
+        if event.type() == QEvent.Type.LanguageChange:
+            self._retranslate()
+        super().changeEvent(event)
+
+    def _retranslate(self):
+        self.setWindowTitle(self.tr("Font Charset Stats"))
+        self._file_menu.setTitle(self.tr("&File"))
+        self._open_action.setText(self.tr("&Open Font..."))
+        self._batch_action.setText(self.tr("&Batch Analyze..."))
+        self._export_action.setText(self.tr("&Export Report..."))
+        self._quit_action.setText(self.tr("&Quit"))
+        self._lang_menu.setTitle(self.tr("&Language"))
+        self._help_menu.setTitle(self.tr("&Help"))
+        self._about_action.setText(self.tr("&About"))
+        self._license_action.setText(self.tr("&License"))
+        self._open_btn.setText(self.tr("Open Font"))
+        self._batch_btn.setText(self.tr("Batch"))
+        self._analyze_btn.setText(self.tr("Analyze"))
+        self._export_btn.setText(self.tr("Export"))
+        self._show_controls_cb.setText(self.tr("Show Controls"))
+        self._font_panel.retranslate()
+        self._charset_panel.retranslate()
+        self._results_view.retranslate()
 
     def closeEvent(self, event):
         self._worker_thread.quit()
