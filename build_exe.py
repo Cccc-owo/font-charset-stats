@@ -21,7 +21,6 @@ def build():
         "--standalone",
         "--onefile",
         "--windows-console-mode=attach",
-        "--windows-onefile-compression=yes",
         "--enable-plugin=pyside6",
         "--include-package-data=font_charset_stats",
         "--include-data-dir=font_charset_stats/charsets/data=charsets/data",
