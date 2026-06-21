@@ -95,14 +95,10 @@ class MainWindow(QMainWindow):
 
         self._lang_menu = menu.addMenu(self.tr("&Language"))
         en_action = QAction("English", self)
-        en_action.triggered.connect(
-            lambda: switch_language(cast(QApplication, QApplication.instance()), "")
-        )
+        en_action.triggered.connect(lambda: self._on_lang_switch(""))
         self._lang_menu.addAction(en_action)
         zh_action = QAction("中文", self)
-        zh_action.triggered.connect(
-            lambda: switch_language(cast(QApplication, QApplication.instance()), "zh_CN")
-        )
+        zh_action.triggered.connect(lambda: self._on_lang_switch("zh_CN"))
         self._lang_menu.addAction(zh_action)
 
         self._help_menu = menu.addMenu(self.tr("&Help"))
@@ -281,6 +277,10 @@ class MainWindow(QMainWindow):
         self._results_view.set_show_controls(self._show_controls_cb.isChecked())
         if self._font_panel.fonts() and self._charset_panel.selected_charsets():
             self._on_analyze()
+
+    def _on_lang_switch(self, locale: str):
+        switch_language(cast(QApplication, QApplication.instance()), locale)
+        self._retranslate()
 
     def _on_batch(self):
         from font_charset_stats.gui.batch_dialog import BatchDialog
