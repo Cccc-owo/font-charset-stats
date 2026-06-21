@@ -51,7 +51,7 @@ class ExportDialog(QDialog):
         self._fonts = fonts
         self._results = results
 
-        self.setWindowTitle("Export Report")
+        self.setWindowTitle(self.tr("Export Report"))
         self.resize(500, 120)
         self._setup_ui()
 
@@ -59,11 +59,11 @@ class ExportDialog(QDialog):
         layout = QVBoxLayout(self)
 
         file_layout = QHBoxLayout()
-        file_layout.addWidget(QLabel("Save to:"))
+        file_layout.addWidget(QLabel(self.tr("Save to:")))
         self._path_edit = QLineEdit()
-        self._path_edit.setPlaceholderText("Select output file path...")
+        self._path_edit.setPlaceholderText(self.tr("Select output file path..."))
         file_layout.addWidget(self._path_edit)
-        self._browse_btn = QPushButton("Browse...")
+        self._browse_btn = QPushButton(self.tr("Browse..."))
         self._browse_btn.clicked.connect(self._on_browse)
         file_layout.addWidget(self._browse_btn)
         layout.addLayout(file_layout)
@@ -74,7 +74,9 @@ class ExportDialog(QDialog):
         layout.addWidget(buttons)
 
     def _on_browse(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Save Report", "", "CSV Files (*.csv)")
+        path, _ = QFileDialog.getSaveFileName(
+            self, self.tr("Save Report"), "", self.tr("CSV Files (*.csv)")
+        )
         if path:
             if not path.lower().endswith(".csv"):
                 path += ".csv"
@@ -83,13 +85,15 @@ class ExportDialog(QDialog):
     def _on_export(self):
         path = self._path_edit.text().strip()
         if not path:
-            QMessageBox.warning(self, "Export", "Please select an output file path.")
+            QMessageBox.warning(
+                self, self.tr("Export"), self.tr("Please select an output file path.")
+            )
             return
 
         try:
             rows = _build_csv_rows(self._fonts, self._results)
             if not rows:
-                QMessageBox.warning(self, "Export", "No data to export.")
+                QMessageBox.warning(self, self.tr("Export"), self.tr("No data to export."))
                 return
 
             with open(path, "w", encoding="utf-8", newline="") as f:
@@ -97,7 +101,7 @@ class ExportDialog(QDialog):
                 writer.writeheader()
                 writer.writerows(rows)
 
-            QMessageBox.information(self, "Export", f"Report saved to:\n{path}")
+            QMessageBox.information(self, self.tr("Export"), self.tr("Report saved to:\n%s") % path)
             self.accept()
         except OSError as e:
-            QMessageBox.critical(self, "Export Error", str(e))
+            QMessageBox.critical(self, self.tr("Export Error"), str(e))

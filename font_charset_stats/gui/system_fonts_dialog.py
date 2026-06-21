@@ -124,7 +124,7 @@ class SystemFontsDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("System Fonts")
+        self.setWindowTitle(self.tr("System Fonts"))
         self.resize(650, 500)
         self._fonts: list[tuple[str, str, int, int]] = []
 
@@ -135,7 +135,7 @@ class SystemFontsDialog(QDialog):
         layout = QVBoxLayout(self)
 
         self._filter = QLineEdit()
-        self._filter.setPlaceholderText("Filter by family name...")
+        self._filter.setPlaceholderText(self.tr("Filter by family name..."))
         layout.addWidget(self._filter)
 
         self._filter_timer = QTimer(self)

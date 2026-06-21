@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
 from font_charset_stats.font_reader import FontInfo, probe_tc
 from font_charset_stats.gui.charset_panel import CharsetPanel
 from font_charset_stats.gui.font_list import FontListPanel
+from font_charset_stats.gui.i18n import setup_translators, switch_language
 from font_charset_stats.gui.results_view import ResultsView
 from font_charset_stats.gui.theme import apply_theme
 from font_charset_stats.gui.worker import AnalysisWorker
@@ -28,7 +29,7 @@ from font_charset_stats.gui.worker import AnalysisWorker
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Font Charset Stats")
+        self.setWindowTitle(self.tr("Font Charset Stats"))
         self.resize(1280, 800)
 
         self._fonts: list[FontInfo] = []
@@ -64,34 +65,42 @@ class MainWindow(QMainWindow):
     def _setup_menu(self):
         menu = self.menuBar()
 
-        file_menu = menu.addMenu("&File")
+        file_menu = menu.addMenu(self.tr("&File"))
 
-        open_action = QAction("&Open Font...", self)
+        open_action = QAction(self.tr("&Open Font..."), self)
         open_action.setShortcut("Ctrl+O")
         open_action.triggered.connect(self._on_open_file)
         file_menu.addAction(open_action)
 
-        batch_action = QAction("&Batch Analyze...", self)
+        batch_action = QAction(self.tr("&Batch Analyze..."), self)
         batch_action.setShortcut("Ctrl+B")
         batch_action.triggered.connect(self._on_batch)
         file_menu.addAction(batch_action)
 
         file_menu.addSeparator()
 
-        export_action = QAction("&Export Report...", self)
+        export_action = QAction(self.tr("&Export Report..."), self)
         export_action.setShortcut("Ctrl+E")
         export_action.triggered.connect(self._on_export)
         file_menu.addAction(export_action)
 
         file_menu.addSeparator()
 
-        quit_action = QAction("&Quit", self)
+        quit_action = QAction(self.tr("&Quit"), self)
         quit_action.setShortcut("Ctrl+Q")
         quit_action.triggered.connect(self.close)
         file_menu.addAction(quit_action)
 
-        help_menu = menu.addMenu("&Help")
-        about_action = QAction("&About", self)
+        lang_menu = menu.addMenu(self.tr("&Language"))
+        en_action = QAction("English", self)
+        en_action.triggered.connect(lambda: switch_language(QApplication.instance(), ""))
+        lang_menu.addAction(en_action)
+        zh_action = QAction("中文", self)
+        zh_action.triggered.connect(lambda: switch_language(QApplication.instance(), "zh_CN"))
+        lang_menu.addAction(zh_action)
+
+        help_menu = menu.addMenu(self.tr("&Help"))
+        about_action = QAction(self.tr("&About"), self)
         about_action.triggered.connect(self._on_about)
         help_menu.addAction(about_action)
 
@@ -99,30 +108,30 @@ class MainWindow(QMainWindow):
         toolbar = self.addToolBar("Main")
         toolbar.setIconSize(QSize(16, 16))
 
-        open_btn = QPushButton("Open Font")
+        open_btn = QPushButton(self.tr("Open Font"))
         open_btn.clicked.connect(self._on_open_file)
         toolbar.addWidget(open_btn)
 
-        batch_btn = QPushButton("Batch")
+        batch_btn = QPushButton(self.tr("Batch"))
         batch_btn.clicked.connect(self._on_batch)
         toolbar.addWidget(batch_btn)
 
         toolbar.addSeparator()
 
-        self._analyze_btn = QPushButton("Analyze")
+        self._analyze_btn = QPushButton(self.tr("Analyze"))
         self._analyze_btn.clicked.connect(self._on_analyze)
         self._analyze_btn.setEnabled(False)
         toolbar.addWidget(self._analyze_btn)
 
         toolbar.addSeparator()
 
-        export_btn = QPushButton("Export")
+        export_btn = QPushButton(self.tr("Export"))
         export_btn.clicked.connect(self._on_export)
         toolbar.addWidget(export_btn)
 
         toolbar.addSeparator()
 
-        self._show_controls_cb = QCheckBox("Show Controls")
+        self._show_controls_cb = QCheckBox(self.tr("Show Controls"))
         self._show_controls_cb.setChecked(False)
         self._show_controls_cb.toggled.connect(self._on_show_controls_toggled)
         toolbar.addWidget(self._show_controls_cb)
@@ -149,7 +158,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(splitter)
 
     def _setup_statusbar(self):
-        self.statusBar().showMessage("Ready")
+        self.statusBar().showMessage(self.tr("Ready"))
 
     def _connect_signals(self):
         self._font_panel.font_added.connect(self._on_font_added)
@@ -161,9 +170,9 @@ class MainWindow(QMainWindow):
     def _on_open_file(self):
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Open Font Files",
+            self.tr("Open Font Files"),
             "",
-            "Font Files (*.ttf *.otf *.woff *.woff2);;All Files (*)",
+            self.tr("Font Files (*.ttf *.otf *.woff *.woff2);;All Files (*)"),
         )
         for p in paths:
             self._font_panel.font_added.emit(p)
@@ -175,14 +184,16 @@ class MainWindow(QMainWindow):
         variants = probe_tc(str(font_info.path))
         self._font_panel.add_font_info(font_info, variants if len(variants) > 1 else None)
         self._fonts.append(font_info)
-        self.statusBar().showMessage(f"Loaded: {font_info.family_name or font_info.path.stem}")
+        name = font_info.family_name or font_info.path.stem
+        self.statusBar().showMessage(self.tr("Loaded: %s") % name)
         self._analyze_btn.setEnabled(True)
         self._debounce.start()
 
     def _on_variant_changed(self, font_index: int, font_number: int):
         font = self._font_panel.fonts()[font_index]
         self._font_panel.remove_font_at(font_index)
-        self.statusBar().showMessage(f"Reloading: {font.path.name} face {font_number}...")
+        msg = self.tr("Reloading: %s face %s...") % (font.path.name, font_number)
+        self.statusBar().showMessage(msg)
         self._worker.load_font(str(font.path), font_number=font_number)
 
     def _on_fonts_changed(self):
@@ -205,7 +216,7 @@ class MainWindow(QMainWindow):
         for font in self._font_panel.fonts():
             if str(font.path) == str(Path(path).resolve()):
                 return
-        self.statusBar().showMessage(f"Loading: {Path(path).name}...")
+        self.statusBar().showMessage(self.tr("Loading: %s...") % Path(path).name)
         self._worker.load_font(path, font_number=face_index)
 
     def _on_analyze(self):
@@ -214,13 +225,13 @@ class MainWindow(QMainWindow):
         fonts = self._font_panel.fonts()
         charsets = self._charset_panel.selected_charsets()
         if not fonts or not charsets:
-            self.statusBar().showMessage("No fonts or charsets selected")
+            self.statusBar().showMessage(self.tr("No fonts or charsets selected"))
             return
 
         self._analyzing = True
         self._analyze_fonts_snapshot = list(fonts)
         self._analyze_charset_order = self._charset_panel.selected_names()
-        self.statusBar().showMessage("Analyzing...")
+        self.statusBar().showMessage(self.tr("Analyzing..."))
         self._analyze_btn.setEnabled(False)
         self._worker.analyze_fonts(
             fonts,
@@ -236,14 +247,14 @@ class MainWindow(QMainWindow):
             self._analyze_fonts_snapshot, results, self._analyze_charset_order
         )
         self._analyze_btn.setEnabled(True)
-        self.statusBar().showMessage("Analysis complete")
+        self.statusBar().showMessage(self.tr("Analysis complete"))
 
     def _on_error(self, message: str):
         self.statusBar().showMessage(message)
-        QMessageBox.warning(self, "Error", message)
+        QMessageBox.warning(self, self.tr("Error"), message)
 
     def _on_progress(self, completed: int, total: int):
-        self.statusBar().showMessage(f"Analyzing... {completed}/{total}")
+        self.statusBar().showMessage(self.tr("Analyzing... %s/%s") % (completed, total))
 
     def _on_auto_analyze(self):
         if self._analyzing:
@@ -273,7 +284,7 @@ class MainWindow(QMainWindow):
 
         fonts = self._font_panel.fonts()
         if not self._last_results:
-            self.statusBar().showMessage("No analysis results to export")
+            self.statusBar().showMessage(self.tr("No analysis results to export"))
             return
         dlg = ExportDialog(fonts, self._last_results, self)
         dlg.exec()
@@ -281,11 +292,13 @@ class MainWindow(QMainWindow):
     def _on_about(self):
         QMessageBox.about(
             self,
-            "About Font Charset Stats",
+            self.tr("About Font Charset Stats"),
             "font-charset-stats 0.1.0\n\n"
-            "Analyze font character set coverage against\n"
-            "Chinese / Japanese / Korean encoding standards.\n\n"
-            "Powered by fonttools + PySide6",
+            + self.tr(
+                "Analyze font character set coverage against\n"
+                "Chinese / Japanese / Korean encoding standards.\n\n"
+                "Powered by fonttools + PySide6"
+            ),
         )
 
     def closeEvent(self, event):
@@ -297,6 +310,7 @@ class MainWindow(QMainWindow):
 def main():
     app = QApplication(sys.argv)
     apply_theme(app)
+    setup_translators(app)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

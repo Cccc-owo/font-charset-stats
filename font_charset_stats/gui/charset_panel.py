@@ -88,7 +88,7 @@ class CharsetPanel(QGroupBox):
     selection_changed = Signal()
 
     def __init__(self, parent=None):
-        super().__init__("Charsets", parent)
+        super().__init__(self.tr("Charsets"), parent)
         self._all_items: list[QListWidgetItem] = []
         self._setup_ui()
         self._populate()
@@ -97,18 +97,18 @@ class CharsetPanel(QGroupBox):
         layout = QVBoxLayout(self)
 
         self._filter = QLineEdit()
-        self._filter.setPlaceholderText("Filter charsets...")
+        self._filter.setPlaceholderText(self.tr("Filter charsets..."))
         self._filter.textChanged.connect(self._apply_filter)
 
-        self._western_cb = QCheckBox("Show Western Unicode Blocks")
+        self._western_cb = QCheckBox(self.tr("Show Western Unicode Blocks"))
         self._western_cb.toggled.connect(self._on_western_toggled)
         layout.addWidget(self._western_cb)
 
         self._list = QListWidget()
 
         btn_layout = QHBoxLayout()
-        self._select_all_btn = QPushButton("Select All")
-        self._deselect_all_btn = QPushButton("Deselect All")
+        self._select_all_btn = QPushButton(self.tr("Select All"))
+        self._deselect_all_btn = QPushButton(self.tr("Deselect All"))
         self._select_all_btn.clicked.connect(self._select_all)
         self._deselect_all_btn.clicked.connect(self._deselect_all)
         btn_layout.addWidget(self._select_all_btn)
@@ -125,6 +125,7 @@ class CharsetPanel(QGroupBox):
                 continue
             item = QListWidgetItem(f"{name}  ({cs.total:,d} cp)")
             item.setData(Qt.ItemDataRole.UserRole, name)
+            item.setToolTip(cs.description)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
             item.setCheckState(Qt.CheckState.Checked)
             self._list.addItem(item)

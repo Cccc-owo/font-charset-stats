@@ -53,7 +53,10 @@ class BatchWorker(QObject):
                 self.font_error.emit(fp.name, str(e))
             self.progress.emit(i + 1, total)
 
-        summary = f"Done: {ok}/{total}" if not thread.isInterruptionRequested() else "Cancelled"
+        if thread.isInterruptionRequested():
+            summary = self.tr("Cancelled")
+        else:
+            summary = self.tr("Done: %s/%s") % (ok, total)
         self.finished.emit(summary)
 
 
@@ -64,7 +67,7 @@ class BatchDialog(QDialog):
         self._thread: QThread | None = None
         self._running = False
 
-        self.setWindowTitle("Batch Analyze")
+        self.setWindowTitle(self.tr("Batch Analyze"))
         self.resize(900, 500)
         self._setup_ui()
         self._connect_signals()
@@ -73,15 +76,15 @@ class BatchDialog(QDialog):
         layout = QVBoxLayout(self)
 
         dir_layout = QHBoxLayout()
-        dir_layout.addWidget(QLabel("Directory:"))
+        dir_layout.addWidget(QLabel(self.tr("Directory:")))
         self._dir_edit = QLineEdit()
-        self._dir_edit.setPlaceholderText("Select a directory containing font files...")
+        self._dir_edit.setPlaceholderText(self.tr("Select a directory containing font files..."))
         dir_layout.addWidget(self._dir_edit)
-        self._browse_btn = QPushButton("Browse...")
+        self._browse_btn = QPushButton(self.tr("Browse..."))
         dir_layout.addWidget(self._browse_btn)
         layout.addLayout(dir_layout)
 
-        self._run_btn = QPushButton("Run Batch Analysis")
+        self._run_btn = QPushButton(self.tr("Run Batch Analysis"))
         layout.addWidget(self._run_btn)
 
         self._progress = QProgressBar()
@@ -94,7 +97,12 @@ class BatchDialog(QDialog):
 
         self._table = QTableWidget(0, 4)
         self._table.setHorizontalHeaderLabels(
-            ["Font", "Best Coverage", "Charset", "Total Codepoints"]
+            [
+                self.tr("Font"),
+                self.tr("Best Coverage"),
+                self.tr("Charset"),
+                self.tr("Total Codepoints"),
+            ]
         )
         self._table.horizontalHeader().setStretchLastSection(True)
         self._table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
@@ -109,7 +117,7 @@ class BatchDialog(QDialog):
         self._run_btn.clicked.connect(self._on_run)
 
     def _on_browse(self):
-        path = QFileDialog.getExistingDirectory(self, "Select Font Directory")
+        path = QFileDialog.getExistingDirectory(self, self.tr("Select Font Directory"))
         if path:
             self._dir_edit.setText(path)
 
@@ -135,7 +143,7 @@ class BatchDialog(QDialog):
 
     def _start_run(self, font_files: list[Path]):
         self._running = True
-        self._run_btn.setText("Cancel")
+        self._run_btn.setText(self.tr("Cancel"))
         self._dir_edit.setEnabled(False)
         self._browse_btn.setEnabled(False)
 
@@ -193,7 +201,7 @@ class BatchDialog(QDialog):
             self._table.setItem(row, 1, pct_item)
             self._table.setItem(row, 2, QTableWidgetItem(best.name))
         else:
-            self._table.setItem(row, 1, QTableWidgetItem("N/A"))
+            self._table.setItem(row, 1, QTableWidgetItem(self.tr("N/A")))
             self._table.setItem(row, 2, QTableWidgetItem("-"))
 
         self._table.setItem(row, 3, QTableWidgetItem(str(len(font_info.codepoints))))
@@ -202,7 +210,7 @@ class BatchDialog(QDialog):
         row = self._table.rowCount()
         self._table.insertRow(row)
         self._table.setItem(row, 0, QTableWidgetItem(name))
-        err_item = QTableWidgetItem(f"Error: {error_msg}")
+        err_item = QTableWidgetItem(self.tr("Error: %s") % error_msg)
         err_item.setBackground(BATCH_COLORS["error"])
         self._table.setItem(row, 1, err_item)
 
@@ -213,7 +221,7 @@ class BatchDialog(QDialog):
 
     def _reset_ui(self):
         self._running = False
-        self._run_btn.setText("Run Batch Analysis")
+        self._run_btn.setText(self.tr("Run Batch Analysis"))
         self._dir_edit.setEnabled(True)
         self._browse_btn.setEnabled(True)
         self._worker = None
@@ -221,7 +229,7 @@ class BatchDialog(QDialog):
 
     def _show_no_fonts(self):
         self._table.setRowCount(1)
-        no_item = QTableWidgetItem("No supported font files found in this directory")
+        no_item = QTableWidgetItem(self.tr("No supported font files found in this directory"))
         no_item.setBackground(BATCH_COLORS["error"])
         self._table.setItem(0, 0, no_item)
 

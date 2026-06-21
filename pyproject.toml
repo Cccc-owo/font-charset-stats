@@ -32,7 +32,7 @@ font-charset-stats-gui = "font_charset_stats.gui.app:main"
 include = ["font_charset_stats*"]
 
 [tool.setuptools.package-data]
-"font_charset_stats" = ["charsets/data/*.json", "gui/fonts/*"]
+"font_charset_stats" = ["charsets/data/*.json", "gui/fonts/*", "gui/i18n/*.qm"]
 
 [tool.pyright]
 typeCheckingMode = "standard"

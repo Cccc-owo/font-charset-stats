@@ -28,7 +28,7 @@ class FontListPanel(QGroupBox):
     system_fonts_requested = Signal()
 
     def __init__(self, parent=None):
-        super().__init__("Fonts", parent)
+        super().__init__(self.tr("Fonts"), parent)
         self._variants: dict[int, list[tuple[int, str, str, int]]] = {}
         self._setup_ui()
         self.setAcceptDrops(True)
@@ -44,7 +44,7 @@ class FontListPanel(QGroupBox):
         self._view.selectionModel().selectionChanged.connect(self._on_selection_changed)
 
         variant_layout = QHBoxLayout()
-        variant_layout.addWidget(QLabel("Variant:"))
+        variant_layout.addWidget(QLabel(self.tr("Variant:")))
         self._variant_combo = QComboBox()
         self._variant_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._variant_combo.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -54,9 +54,9 @@ class FontListPanel(QGroupBox):
         variant_layout.addWidget(self._variant_combo)
 
         btn_layout = QHBoxLayout()
-        self._add_btn = QPushButton("Add")
-        self._remove_btn = QPushButton("Remove")
-        self._system_btn = QPushButton("System Fonts...")
+        self._add_btn = QPushButton(self.tr("Add"))
+        self._remove_btn = QPushButton(self.tr("Remove"))
+        self._system_btn = QPushButton(self.tr("System Fonts..."))
 
         self._add_btn.clicked.connect(self._on_add)
         self._remove_btn.clicked.connect(self._on_remove)
@@ -77,9 +77,9 @@ class FontListPanel(QGroupBox):
     def _on_add(self):
         paths, _ = QFileDialog.getOpenFileNames(
             self,
-            "Open Font Files",
+            self.tr("Open Font Files"),
             "",
-            "Font Files (*.ttf *.otf *.woff *.woff2);;All Files (*)",
+            self.tr("Font Files (*.ttf *.otf *.woff *.woff2);;All Files (*)"),
         )
         for p in paths:
             self.font_added.emit(p)

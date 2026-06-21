@@ -221,14 +221,14 @@ class ResultsView(QTabWidget):
         self._coverage_table.verticalHeader().setStretchLastSection(True)
         self._coverage_table.setAlternatingRowColors(True)
         self._coverage_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.addTab(self._coverage_table, "Coverage")
+        self.addTab(self._coverage_table, self.tr("Coverage"))
 
     def _setup_chart_tab(self) -> None:
         assert Figure is not None and FigureCanvasQTAgg is not None
         self._figure = Figure(figsize=(6, 4), dpi=100)
         self._canvas = FigureCanvasQTAgg(self._figure)
         self._ax = self._figure.add_subplot(111)
-        self.addTab(self._canvas, "Chart")
+        self.addTab(self._canvas, self.tr("Chart"))
 
     def _setup_missing_tab(self):
         widget = QWidget()
@@ -238,12 +238,12 @@ class ResultsView(QTabWidget):
         layout.addWidget(self._missing_summary)
 
         selector_layout = QHBoxLayout()
-        selector_layout.addWidget(QLabel("Charset:"))
+        selector_layout.addWidget(QLabel(self.tr("Charset:")))
         self._missing_charset_combo = QComboBox()
         self._missing_charset_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._missing_charset_combo.currentTextChanged.connect(self._update_missing_view)
         selector_layout.addWidget(self._missing_charset_combo)
-        selector_layout.addWidget(QLabel("Font:"))
+        selector_layout.addWidget(QLabel(self.tr("Font:")))
         self._missing_font_combo = QComboBox()
         self._missing_font_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._missing_font_combo.currentIndexChanged.connect(self._update_missing_view)
@@ -254,21 +254,24 @@ class ResultsView(QTabWidget):
         layout.addLayout(selector_layout)
 
         self._missing_tree = QTreeWidget()
-        self._missing_tree.setHeaderLabels(["Codepoint", "Character"])
+        self._missing_tree.setHeaderLabels([self.tr("Codepoint"), self.tr("Character")])
         self._missing_tree.setAlternatingRowColors(True)
         self._missing_tree.itemExpanded.connect(self._on_missing_expanded)
+        self._expand_placeholder = self.tr("Click to expand...")
         layout.addWidget(self._missing_tree)
 
-        self.addTab(widget, "Missing")
+        self.addTab(widget, self.tr("Missing"))
         self._missing_widget = widget
 
     def _setup_preview_tab(self):
         self._preview_text = QTextEdit()
-        self._preview_text.setPlaceholderText("Type text to preview with the selected font...")
+        self._preview_text.setPlaceholderText(
+            self.tr("Type text to preview with the selected font...")
+        )
         self._preview_text.setPlainText(_preview_sample_text())
 
         font_layout = QHBoxLayout()
-        font_layout.addWidget(QLabel("Font:"))
+        font_layout.addWidget(QLabel(self.tr("Font:")))
         self._preview_font_combo = QComboBox()
         self._preview_font_combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._preview_font_combo.currentTextChanged.connect(self._update_preview_font)
@@ -281,7 +284,7 @@ class ResultsView(QTabWidget):
 
         widget = QWidget()
         widget.setLayout(layout)
-        self.addTab(widget, "Preview")
+        self.addTab(widget, self.tr("Preview"))
 
     def set_results(
         self,
@@ -309,7 +312,7 @@ class ResultsView(QTabWidget):
             ]
         else:
             charset_names = sorted({r.name for r in results if r.coverage < 1.0})
-        self._missing_charset_combo.addItems(charset_names or ["(none missing)"])
+        self._missing_charset_combo.addItems(charset_names or [self.tr("(none missing)")])
         self._missing_charset_combo.blockSignals(False)
 
         self._load_preview_fonts()
@@ -417,7 +420,7 @@ class ResultsView(QTabWidget):
         total = len(missing)
         grouped = _group_missing_by_block(missing)
         self._missing_summary.setText(
-            f"Total missing: {total:,d} codepoints  |  {len(grouped)} blocks"
+            self.tr("Total missing: %s codepoints  |  %s blocks") % (total, len(grouped))
         )
 
         self._missing_tree.clear()
@@ -433,13 +436,13 @@ class ResultsView(QTabWidget):
                 self._populate_block_children(parent, codepoints)
             else:
                 placeholder = QTreeWidgetItem(parent)
-                placeholder.setText(0, "Click to expand...")
+                placeholder.setText(0, self._expand_placeholder)
 
         for col in range(2):
             self._missing_tree.resizeColumnToContents(col)
 
     def _on_missing_expanded(self, item: QTreeWidgetItem):
-        if item.childCount() == 1 and item.child(0).text(0) == "Click to expand...":
+        if item.childCount() == 1 and item.child(0).text(0) == self._expand_placeholder:
             item.takeChildren()
             codepoints = item.data(0, Qt.ItemDataRole.UserRole)
             if codepoints:
