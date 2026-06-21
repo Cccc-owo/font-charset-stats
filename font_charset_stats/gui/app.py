@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+from PySide6.QtCore import QSize, Qt, QThread, QTimer
+from PySide6.QtGui import QAction
 from PySide6.QtWidgets import (
     QApplication,
     QFileDialog,
@@ -13,13 +15,12 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PySide6.QtCore import QThread, Qt, QSize, QTimer
-from PySide6.QtGui import QAction
 
 from font_charset_stats.font_reader import FontInfo, probe_tc
 from font_charset_stats.gui.charset_panel import CharsetPanel
 from font_charset_stats.gui.font_list import FontListPanel
 from font_charset_stats.gui.results_view import ResultsView
+from font_charset_stats.gui.theme import apply_theme
 from font_charset_stats.gui.worker import AnalysisWorker
 
 
@@ -163,22 +164,16 @@ class MainWindow(QMainWindow):
 
     def _on_font_loaded(self, font_info: FontInfo):
         variants = probe_tc(str(font_info.path))
-        self._font_panel.add_font_info(
-            font_info, variants if len(variants) > 1 else None
-        )
+        self._font_panel.add_font_info(font_info, variants if len(variants) > 1 else None)
         self._fonts.append(font_info)
-        self.statusBar().showMessage(
-            f"Loaded: {font_info.family_name or font_info.path.stem}"
-        )
+        self.statusBar().showMessage(f"Loaded: {font_info.family_name or font_info.path.stem}")
         self._analyze_btn.setEnabled(True)
         self._debounce.start()
 
     def _on_variant_changed(self, font_index: int, font_number: int):
         font = self._font_panel.fonts()[font_index]
         self._font_panel.remove_font_at(font_index)
-        self.statusBar().showMessage(
-            f"Reloading: {font.path.name} face {font_number}..."
-        )
+        self.statusBar().showMessage(f"Reloading: {font.path.name} face {font_number}...")
         self._worker.load_font(str(font.path), font_number=font_number)
 
     def _on_fonts_changed(self):
@@ -273,7 +268,7 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    app.setStyle("Fusion")
+    apply_theme(app)
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from typing import Optional, Union
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QPersistentModelIndex, Qt
-from PySide6.QtGui import QColor
 
 from font_charset_stats.analyzer import CoverageResult
 from font_charset_stats.font_reader import FontInfo
+from font_charset_stats.gui.theme import COVERAGE_FG, coverage_bg_color
 
 
 class FontListModel(QAbstractTableModel):
@@ -20,16 +20,12 @@ class FontListModel(QAbstractTableModel):
         super().__init__(parent)
         self._fonts: list[FontInfo] = []
 
-    def rowCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._fonts) if not parent.isValid() else 0
 
-    def columnCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._COLUMNS) if not parent.isValid() else 0
@@ -53,10 +49,7 @@ class FontListModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if (
-            orientation == Qt.Orientation.Horizontal
-            and role == Qt.ItemDataRole.DisplayRole
-        ):
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return self._COLUMNS[section]
         return None
 
@@ -92,19 +85,6 @@ class _Cell:
     charset_desc: str = ""
 
 
-def _bg_color(pct: float) -> QColor:
-    if pct >= 0.99:
-        return QColor(198, 239, 206)  # soft green
-    elif pct >= 0.9:
-        return QColor(217, 240, 180)  # light green
-    elif pct >= 0.7:
-        return QColor(255, 243, 160)  # light yellow
-    elif pct >= 0.5:
-        return QColor(255, 210, 160)  # light orange
-    else:
-        return QColor(255, 170, 160)  # light red
-
-
 class CoverageTableModel(QAbstractTableModel):
     """Pivot model: rows=charsets, cols=fonts, cells=coverage %."""
 
@@ -128,13 +108,11 @@ class CoverageTableModel(QAbstractTableModel):
         n_charsets = len(self._charset_names)
 
         self._cells = []
-        for cs_idx, cs_name in enumerate(self._charset_names):
+        for _cs_idx, cs_name in enumerate(self._charset_names):
             row_cells: list[_Cell] = []
-            for fi, font in enumerate(fonts):
+            for fi, _font in enumerate(fonts):
                 start = fi * n_charsets
-                font_results = (
-                    results[start : start + n_charsets] if start < len(results) else []
-                )
+                font_results = results[start : start + n_charsets] if start < len(results) else []
                 r = next((r for r in font_results if r.name == cs_name), None)
                 cell = _Cell(
                     coverage=r.coverage if r else 0.0,
@@ -147,16 +125,12 @@ class CoverageTableModel(QAbstractTableModel):
             self._cells.append(row_cells)
         self.endResetModel()
 
-    def rowCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._charset_names) if not parent.isValid() else 0
 
-    def columnCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._fonts) if not parent.isValid() else 0
@@ -168,9 +142,9 @@ class CoverageTableModel(QAbstractTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             return f"{cell.matched:,d}/{cell.total:,d}  ({cell.coverage * 100:.1f}%)"
         if role == Qt.ItemDataRole.BackgroundRole:
-            return _bg_color(cell.coverage)
+            return coverage_bg_color(cell.coverage)
         if role == Qt.ItemDataRole.ForegroundRole:
-            return QColor(30, 30, 30)
+            return COVERAGE_FG
         if role == Qt.ItemDataRole.ToolTipRole:
             return f"{cell.charset_desc}\nMatched: {cell.matched:,d} / Total: {cell.total:,d}"
         if role == Qt.ItemDataRole.TextAlignmentRole:
@@ -181,17 +155,14 @@ class CoverageTableModel(QAbstractTableModel):
         if (
             orientation == Qt.Orientation.Horizontal
             and role == Qt.ItemDataRole.DisplayRole
+            and 0 <= section < len(self._fonts)
         ):
-            if 0 <= section < len(self._fonts):
-                return (
-                    self._fonts[section].family_name or self._fonts[section].path.name
-                )
-        if orientation == Qt.Orientation.Vertical:
-            if 0 <= section < len(self._charset_names):
-                if role == Qt.ItemDataRole.DisplayRole:
-                    return self._charset_names[section]
-                if role == Qt.ItemDataRole.ToolTipRole:
-                    return self._charset_descs[section]
+            return self._fonts[section].family_name or self._fonts[section].path.name
+        if orientation == Qt.Orientation.Vertical and 0 <= section < len(self._charset_names):
+            if role == Qt.ItemDataRole.DisplayRole:
+                return self._charset_names[section]
+            if role == Qt.ItemDataRole.ToolTipRole:
+                return self._charset_descs[section]
         return None
 
     def cell_at(self, row: int, col: int) -> _Cell:
@@ -229,16 +200,12 @@ class MissingCharsetModel(QAbstractTableModel):
         self._missing = missing
         self.endResetModel()
 
-    def rowCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._missing) if not parent.isValid() else 0
 
-    def columnCount(
-        self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None
-    ):
+    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
         if parent is None:
             parent = QModelIndex()
         return 2 if not parent.isValid() else 0
@@ -256,9 +223,6 @@ class MissingCharsetModel(QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if (
-            orientation == Qt.Orientation.Horizontal
-            and role == Qt.ItemDataRole.DisplayRole
-        ):
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return self._COLUMNS[section]
         return None

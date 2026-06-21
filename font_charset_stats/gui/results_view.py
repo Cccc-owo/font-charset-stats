@@ -1,30 +1,31 @@
 """Results view with coverage table, charts, missing chars, and font preview."""
 
 import bisect
+import contextlib
 from pathlib import Path
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
-    QTabWidget,
     QTableView,
+    QTabWidget,
     QTextEdit,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
     QWidget,
 )
-from PySide6.QtGui import QFont, QFontDatabase
-from PySide6.QtCore import Qt
 
 from font_charset_stats.analyzer import CoverageResult
 from font_charset_stats.charsets import get_charset
 from font_charset_stats.font_reader import FontInfo
 from font_charset_stats.gui.models import CoverageTableModel
-
+from font_charset_stats.gui.theme import CHART_COLORS, CHART_TEXT_COLOR
 
 _UNICODE_BLOCKS: list[tuple[str, int, int]] = [
     ("Basic Latin", 0x0000, 0x007F),
@@ -143,9 +144,7 @@ try:
     from matplotlib.figure import Figure
     from matplotlib.font_manager import FontProperties, fontManager
 
-    _BUNDLED_FONT = (
-        Path(__file__).resolve().parent / "fonts" / "JetBrainsMono-Regular.ttf"
-    )
+    _BUNDLED_FONT = Path(__file__).resolve().parent / "fonts" / "JetBrainsMono-Regular.ttf"
     _USER_FONT_PATH: str | None = None
 
     def _get_chart_font():  # type: ignore[reportOptionalCall]
@@ -155,13 +154,11 @@ try:
 
     def _register_user_font(font_path: str) -> None:
         global _USER_FONT_PATH
-        if _USER_FONT_PATH == font_path:
+        if font_path == _USER_FONT_PATH:
             return
         _USER_FONT_PATH = font_path
-        try:
+        with contextlib.suppress(Exception):
             fontManager.addfont(font_path)
-        except Exception:
-            pass
         fb = ["JetBrains Mono"]
         try:
             for fe in fontManager.ttflist:
@@ -175,10 +172,8 @@ try:
 
     def _init_bundled() -> None:
         if _BUNDLED_FONT.exists():
-            try:
+            with contextlib.suppress(Exception):
                 fontManager.addfont(str(_BUNDLED_FONT))
-            except Exception:
-                pass
         matplotlib.rcParams["font.sans-serif"] = ["JetBrains Mono"]
         matplotlib.rcParams["font.family"] = "sans-serif"
 
@@ -225,9 +220,7 @@ class ResultsView(QTabWidget):
         self._coverage_table.horizontalHeader().setStretchLastSection(True)
         self._coverage_table.verticalHeader().setStretchLastSection(True)
         self._coverage_table.setAlternatingRowColors(True)
-        self._coverage_table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeToContents
-        )
+        self._coverage_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.addTab(self._coverage_table, "Coverage")
 
     def _setup_chart_tab(self) -> None:
@@ -247,9 +240,7 @@ class ResultsView(QTabWidget):
         selector_layout = QHBoxLayout()
         selector_layout.addWidget(QLabel("Charset:"))
         self._missing_charset_combo = QComboBox()
-        self._missing_charset_combo.currentTextChanged.connect(
-            self._update_missing_view
-        )
+        self._missing_charset_combo.currentTextChanged.connect(self._update_missing_view)
         selector_layout.addWidget(self._missing_charset_combo)
         selector_layout.addWidget(QLabel("Font:"))
         self._missing_font_combo = QComboBox()
@@ -275,9 +266,7 @@ class ResultsView(QTabWidget):
 
     def _setup_preview_tab(self):
         self._preview_text = QTextEdit()
-        self._preview_text.setPlaceholderText(
-            "Type text to preview with the selected font..."
-        )
+        self._preview_text.setPlaceholderText("Type text to preview with the selected font...")
         self._preview_text.setPlainText(_preview_sample_text())
 
         font_layout = QHBoxLayout()
@@ -317,9 +306,7 @@ class ResultsView(QTabWidget):
         self._missing_charset_combo.clear()
         if charset_order:
             charset_names = [
-                n
-                for n in charset_order
-                if any(r.name == n and r.coverage < 1.0 for r in results)
+                n for n in charset_order if any(r.name == n and r.coverage < 1.0 for r in results)
             ]
         else:
             charset_names = sorted({r.name for r in results if r.coverage < 1.0})
@@ -361,6 +348,7 @@ class ResultsView(QTabWidget):
         )
 
         import itertools
+
         import numpy as np
 
         n_charsets = len(charset_names)
@@ -368,17 +356,7 @@ class ResultsView(QTabWidget):
         bar_width = 0.7 / n_fonts
         indices = np.arange(n_charsets)
 
-        font_colors = [
-            "#4a90d9",
-            "#e8753a",
-            "#5db860",
-            "#c75b9b",
-            "#8b5cf6",
-            "#f59e0b",
-            "#10b981",
-            "#ec4899",
-        ]
-        color_cycle = itertools.cycle(font_colors)
+        color_cycle = itertools.cycle(CHART_COLORS)
 
         assert FontProperties is not None
         chart_font = _get_chart_font()
@@ -388,18 +366,14 @@ class ResultsView(QTabWidget):
             font_label = raw_label if len(raw_label) <= 32 else raw_label[:31] + "…"
             start = fi * n_charsets
             font_results = (
-                self._results[start : start + n_charsets]
-                if start < len(self._results)
-                else []
+                self._results[start : start + n_charsets] if start < len(self._results) else []
             )
             values = []
             for cn in charset_names:
                 r = next((r for r in font_results if r.name == cn), None)
                 values.append(r.coverage * 100 if r else 0)
             offset = (fi - (n_fonts - 1) / 2) * bar_width
-            bars = self._ax.barh(
-                indices + offset, values, bar_width, label=font_label, color=color
-            )
+            bars = self._ax.barh(indices + offset, values, bar_width, label=font_label, color=color)
             for bar, val in zip(bars, values):
                 if val > 0:
                     self._ax.text(
@@ -409,7 +383,7 @@ class ResultsView(QTabWidget):
                         va="center",
                         fontsize=7,
                         fontproperties=chart_font,
-                        color="#333",
+                        color=CHART_TEXT_COLOR,
                     )
 
         self._ax.set_yticks(indices)

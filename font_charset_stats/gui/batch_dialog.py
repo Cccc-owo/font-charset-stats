@@ -2,28 +2,28 @@
 
 from pathlib import Path
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
-    QVBoxLayout,
+    QDialogButtonBox,
+    QFileDialog,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
+    QProgressBar,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QProgressBar,
-    QFileDialog,
-    QDialogButtonBox,
-    QHeaderView,
+    QVBoxLayout,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor
 
 from font_charset_stats.analyzer import CoverageResult
 from font_charset_stats.charsets import ALL_CHARSETS, list_charsets
 from font_charset_stats.font_reader import read_font
 from font_charset_stats.gui import SUPPORTED_EXTS
+from font_charset_stats.gui.theme import BATCH_COLORS
 
 
 class BatchDialog(QDialog):
@@ -117,20 +117,18 @@ class BatchDialog(QDialog):
                     pct_item = QTableWidgetItem(f"{best.coverage * 100:.1f}%")
                     pct = best.coverage
                     if pct >= 0.99:
-                        pct_item.setBackground(Qt.green)
+                        pct_item.setBackground(BATCH_COLORS["high"])
                     elif pct >= 0.7:
-                        pct_item.setBackground(QColor(255, 255, 200))
+                        pct_item.setBackground(BATCH_COLORS["medium"])
                     else:
-                        pct_item.setBackground(Qt.red)
+                        pct_item.setBackground(BATCH_COLORS["low"])
                     self._table.setItem(row, 1, pct_item)
                     self._table.setItem(row, 2, QTableWidgetItem(best.name))
                 else:
                     self._table.setItem(row, 1, QTableWidgetItem("N/A"))
                     self._table.setItem(row, 2, QTableWidgetItem("-"))
 
-                self._table.setItem(
-                    row, 3, QTableWidgetItem(str(len(font_info.codepoints)))
-                )
+                self._table.setItem(row, 3, QTableWidgetItem(str(len(font_info.codepoints))))
 
                 self._results[str(fp)] = results
 
@@ -148,5 +146,5 @@ class BatchDialog(QDialog):
     def _show_no_fonts(self):
         self._table.setRowCount(1)
         no_item = QTableWidgetItem("No supported font files found in this directory")
-        no_item.setBackground(QColor(255, 200, 150))
+        no_item.setBackground(BATCH_COLORS["error"])
         self._table.setItem(0, 0, no_item)
