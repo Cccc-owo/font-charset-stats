@@ -1,10 +1,10 @@
 """Dialog for browsing and loading system-installed fonts."""
 
 import contextlib
+import io
 import os
 import platform
 import subprocess
-import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
@@ -99,7 +99,7 @@ def _find_system_fonts() -> list[tuple[str, str, int, int]]:
                             break
                 os2 = font.get("OS/2")
                 if os2:
-                    weight = max(0, min(210, getattr(os2, "usWeightClass", 400) * 210 // 900))
+                    weight = getattr(os2, "usWeightClass", 400) * 80 // 400
                 pairs.append((name or fp.stem, str(fp), 0, weight))
                 font.close()
             except Exception:
@@ -176,12 +176,7 @@ class SystemFontsDialog(QDialog):
             if prev is None or abs(weight - _FC_WEIGHT_REGULAR) < abs(prev[3] - _FC_WEIGHT_REGULAR):
                 best[key] = (family, filepath, face_idx, weight)
 
-        stderr_fd = sys.stderr.fileno()
-        saved = os.dup(stderr_fd)
-        null_fd = os.open(os.devnull, os.O_WRONLY)
-        os.dup2(null_fd, stderr_fd)
-        os.close(null_fd)
-        try:
+        with contextlib.redirect_stderr(io.StringIO()):
             for key in sorted(best):
                 display_name, filepath, face_idx, _weight = best[key]
                 item = QListWidgetItem(display_name)
@@ -189,9 +184,6 @@ class SystemFontsDialog(QDialog):
                 item.setData(Qt.ItemDataRole.UserRole + 1, face_idx)
                 item.setFont(QFont(display_name, 12))
                 self._list.addItem(item)
-        finally:
-            os.dup2(saved, stderr_fd)
-            os.close(saved)
 
         self._filter.setFocus()
 
