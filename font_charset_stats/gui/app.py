@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from font_charset_stats import __version__
 from font_charset_stats.font_reader import FontInfo, probe_tc
 from font_charset_stats.gui.charset_panel import CharsetPanel
 from font_charset_stats.gui.font_list import FontListPanel
@@ -302,7 +303,7 @@ class MainWindow(QMainWindow):
         QMessageBox.about(
             self,
             self.tr("About Font Charset Stats"),
-            "font-charset-stats 0.1.0\n\n"
+            f"font-charset-stats {__version__}\n\n"
             + self.tr(
                 "Analyze font character set coverage against\n"
                 "Chinese / Japanese / Korean encoding standards.\n\n"

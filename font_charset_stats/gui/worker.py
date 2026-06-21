@@ -10,7 +10,7 @@ from font_charset_stats.font_reader import FontInfo, read_font
 class AnalysisWorker(QObject):
     """Runs font I/O and coverage analysis in a background thread."""
 
-    font_loaded = Signal(object)
+    font_loaded = Signal(FontInfo)
     analysis_complete = Signal(list)
     error_occurred = Signal(str)
     progress = Signal(int, int)
