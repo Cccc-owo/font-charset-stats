@@ -1,8 +1,6 @@
 """Qt models for font-charset-stats GUI."""
 
-import unicodedata
 from dataclasses import dataclass
-from typing import Optional, Union
 
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QPersistentModelIndex, Qt
 
@@ -20,12 +18,12 @@ class FontListModel(QAbstractTableModel):
         super().__init__(parent)
         self._fonts: list[FontInfo] = []
 
-    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
+    def rowCount(self, parent: QModelIndex | QPersistentModelIndex | None = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._fonts) if not parent.isValid() else 0
 
-    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
+    def columnCount(self, parent: QModelIndex | QPersistentModelIndex | None = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._COLUMNS) if not parent.isValid() else 0
@@ -107,6 +105,11 @@ class CoverageTableModel(QAbstractTableModel):
         self._charset_descs = [seen[n] for n in self._charset_names]
         n_charsets = len(self._charset_names)
 
+        if n_charsets > 0 and len(self._fonts) > 0:
+            assert len(results) == len(self._fonts) * n_charsets, (
+                f"Results count {len(results)} != fonts {len(self._fonts)} × charsets {n_charsets}"
+            )
+
         self._cells = []
         for _cs_idx, cs_name in enumerate(self._charset_names):
             row_cells: list[_Cell] = []
@@ -125,12 +128,12 @@ class CoverageTableModel(QAbstractTableModel):
             self._cells.append(row_cells)
         self.endResetModel()
 
-    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
+    def rowCount(self, parent: QModelIndex | QPersistentModelIndex | None = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._charset_names) if not parent.isValid() else 0
 
-    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
+    def columnCount(self, parent: QModelIndex | QPersistentModelIndex | None = None):
         if parent is None:
             parent = QModelIndex()
         return len(self._fonts) if not parent.isValid() else 0
@@ -167,62 +170,3 @@ class CoverageTableModel(QAbstractTableModel):
 
     def cell_at(self, row: int, col: int) -> _Cell:
         return self._cells[row][col]
-
-
-def _format_codepoint_char(cp: int) -> str:
-    if 0xD800 <= cp <= 0xDFFF:
-        return "(surrogate)"
-    if 0xFDD0 <= cp <= 0xFDEF or cp & 0xFFFE == 0xFFFE:
-        return "(nonchar)"
-    if cp <= 0x1F or (0x7F <= cp <= 0x9F):
-        return "(control)"
-    try:
-        ch = chr(cp)
-        cat = unicodedata.category(ch)
-        if cat.startswith("C"):
-            return "(control)"
-        return ch
-    except (ValueError, OverflowError):
-        return ""
-
-
-class MissingCharsetModel(QAbstractTableModel):
-    """Flat model listing missing codepoints for a single charset."""
-
-    _COLUMNS = ("Codepoint", "Character")
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._missing: list[int] = []
-
-    def set_missing(self, missing: list[int]):
-        self.beginResetModel()
-        self._missing = missing
-        self.endResetModel()
-
-    def rowCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
-        if parent is None:
-            parent = QModelIndex()
-        return len(self._missing) if not parent.isValid() else 0
-
-    def columnCount(self, parent: Optional[Union[QModelIndex, QPersistentModelIndex]] = None):
-        if parent is None:
-            parent = QModelIndex()
-        return 2 if not parent.isValid() else 0
-
-    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
-        if not index.isValid():
-            return None
-        cp = self._missing[index.row()]
-        col = index.column()
-        if role == Qt.ItemDataRole.DisplayRole:
-            if col == 0:
-                return f"U+{cp:04X}"
-            elif col == 1:
-                return _format_codepoint_char(cp)
-        return None
-
-    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
-            return self._COLUMNS[section]
-        return None

@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 
 from font_charset_stats.analyzer import CoverageResult
 from font_charset_stats.charsets import get_charset
+from font_charset_stats.charsets._utils import format_codepoint_char
 from font_charset_stats.font_reader import FontInfo
 from font_charset_stats.gui.models import CoverageTableModel
 from font_charset_stats.gui.theme import CHART_COLORS, CHART_TEXT_COLOR
@@ -359,6 +360,11 @@ class ResultsView(QTabWidget):
 
         n_charsets = len(charset_names)
         n_fonts = len(self._fonts)
+
+        assert n_charsets > 0 and n_fonts > 0
+        assert len(self._results) == n_fonts * n_charsets, (
+            f"Results count {len(self._results)} != fonts {n_fonts} × charsets {n_charsets}"
+        )
         bar_width = 0.7 / n_fonts
         indices = np.arange(n_charsets)
 
@@ -367,7 +373,7 @@ class ResultsView(QTabWidget):
         assert FontProperties is not None
         chart_font = _get_chart_font()
 
-        for fi, (font, color) in enumerate(zip(self._fonts, color_cycle)):
+        for fi, (font, color) in enumerate(zip(self._fonts, color_cycle, strict=False)):
             raw_label = font.family_name or font.path.stem
             font_label = raw_label if len(raw_label) <= 32 else raw_label[:31] + "…"
             start = fi * n_charsets
@@ -380,7 +386,7 @@ class ResultsView(QTabWidget):
                 values.append(r.coverage * 100 if r else 0)
             offset = (fi - (n_fonts - 1) / 2) * bar_width
             bars = self._ax.barh(indices + offset, values, bar_width, label=font_label, color=color)
-            for bar, val in zip(bars, values):
+            for bar, val in zip(bars, values, strict=True):
                 if val > 0:
                     self._ax.text(
                         bar.get_width() + 0.3,
@@ -471,17 +477,7 @@ class ResultsView(QTabWidget):
         for cp in codepoints:
             child = QTreeWidgetItem(parent)
             child.setText(0, f"U+{cp:04X}")
-            if 0xD800 <= cp <= 0xDFFF:
-                child.setText(1, "(surrogate)")
-            elif cp <= 0x1F or (0x7F <= cp <= 0x9F):
-                child.setText(1, "(control)")
-            elif 0xFDD0 <= cp <= 0xFDEF or cp & 0xFFFE == 0xFFFE:
-                child.setText(1, "(nonchar)")
-            else:
-                try:
-                    child.setText(1, chr(cp))
-                except (ValueError, OverflowError):
-                    child.setText(1, "")
+            child.setText(1, format_codepoint_char(cp))
 
     def _load_preview_fonts(self):
         self._font_families: dict[str, str] = {}
