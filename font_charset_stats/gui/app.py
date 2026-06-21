@@ -2,6 +2,7 @@
 
 import sys
 from pathlib import Path
+from typing import cast
 
 from PySide6.QtCore import QSize, Qt, QThread, QTimer
 from PySide6.QtGui import QAction
@@ -93,10 +94,14 @@ class MainWindow(QMainWindow):
 
         lang_menu = menu.addMenu(self.tr("&Language"))
         en_action = QAction("English", self)
-        en_action.triggered.connect(lambda: switch_language(QApplication.instance(), ""))
+        en_action.triggered.connect(
+            lambda: switch_language(cast(QApplication, QApplication.instance()), "")
+        )
         lang_menu.addAction(en_action)
         zh_action = QAction("中文", self)
-        zh_action.triggered.connect(lambda: switch_language(QApplication.instance(), "zh_CN"))
+        zh_action.triggered.connect(
+            lambda: switch_language(cast(QApplication, QApplication.instance()), "zh_CN")
+        )
         lang_menu.addAction(zh_action)
 
         help_menu = menu.addMenu(self.tr("&Help"))

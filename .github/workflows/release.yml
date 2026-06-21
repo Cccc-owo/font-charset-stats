@@ -1,0 +1,48 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync --extra gui
+
+      - name: Install Nuitka
+        run: uv pip install nuitka ordered-set zstandard
+
+      - name: Build standalone exe
+        run: uv run python build_exe.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FontCharsetStats-Windows
+          path: dist/FontCharsetStats.exe
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: FontCharsetStats-Windows
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: FontCharsetStats.exe
