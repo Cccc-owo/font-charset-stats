@@ -1,4 +1,4 @@
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from font_charset_stats.analyzer import CoverageResult, analyze
 from font_charset_stats.charsets import ALL_CHARSETS, get_charset, list_charsets
